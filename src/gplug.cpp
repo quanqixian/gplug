@@ -3,11 +3,16 @@
 
 int GPLUG_API GPLUG_Init()
 {
+	/* 读取配置文件 */
+	
+	/* 根据配置文件加载动态库 */
+
 	return GPLUG_OK;
 }
 
 void GPLUG_API GPLUG_Uninit()
 {
+	/* 卸载打开的库 */
 	return;
 }
 
