@@ -166,7 +166,6 @@ int GPLUG_API GPLUG_Init()
 
 	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
 	{
-
 		Plugin & p = iter->second;
 		p.handler = dlopen(p.filePath.c_str(), RTLD_LAZY);
 		if(NULL == p.handler)
@@ -181,7 +180,15 @@ int GPLUG_API GPLUG_Init()
 void GPLUG_API GPLUG_Uninit()
 {
     /* 卸载打开的库 */
-    return;
+	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+	{
+		Plugin & p = iter->second;
+		if(p.handler)
+		{
+			dlclose(p.handler);
+			p.handler = NULL;
+		}
+	}
 }
 
 int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error)

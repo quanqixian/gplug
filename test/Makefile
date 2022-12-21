@@ -1,13 +1,17 @@
-TARGET=test
-$(TARGET): main.cpp
-	g++ $^ -o $@          \
-        -I../include/    \
-        -L../bin/         \
-        -Wl,-rpath='$$ORIGIN:$$ORIGIN/../bin' \
-        -lgplug \
-        -lpthread\
-		-ldl
+SUBDIRS = CatPlugin/src DogPlugin/src Plug
 
-.PHONY:clean
+.PHONY: all
+all:
+	@list='$(SUBDIRS)'; for subdir in $$list; do \
+		echo "make in $$subdir";\
+		pushd $$subdir && $(MAKE);\
+		popd;\
+	done
+
+.PHONY: clean
 clean:
-	rm -rf $(TARGET)
+	@list='$(SUBDIRS)'; for subdir in $$list; do \
+		echo "Clean in $$subdir";\
+		pushd $$subdir && $(MAKE) clean;\
+		popd;\
+	done

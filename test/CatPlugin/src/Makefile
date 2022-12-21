@@ -1,18 +1,20 @@
 include ./Rules.make
 
 CPPFLAGS = -I. \
-           -I ../include/ 
+           -I../../../include \
+		   -I../../../include/interface/
 
-OUTPUT_DIR = ../lib
+BIN_DIR = ../bin
+LIBS_DIR = ../../../lib/ 
 CPPFLAGS += -D_REENTRANT
-LDFLAGS += -Wl,-rpath='$$ORIGIN:$$ORIGIN/../lib/'
+LDFLAGS += -L$(LIBS_DIR) -Wl,-rpath='$$ORIGIN:$$ORIGIN/../../../lib/'
 
 
 #Link the .so or .a library
-LIBS =  -lpthread
+LIBS =  
 
 #Target file
-TARGETSO = libgplug.so
+TARGETSO = libCatPlugin.so
 
 #Source and obj file
 SRCS = $(wildcard *.c) $(wildcard *.cc) $(wildcard *.cpp) $(wildcard *.cxx)
@@ -24,8 +26,7 @@ all: $(TARGETSO)
 
 $(TARGETSO): $(OBJS)
 	$(CXX) $(OPTS) $(LDFLAGS) -o $@ $^ $(LIBS)
-	mkdir -p $(OUTPUT_DIR)
-	cp $@  $(OUTPUT_DIR)
+	cp $@  $(BIN_DIR)
 
 %.o : %.c
 	$(CC) -c $(OPTS) $(CPPFLAGS) $(CFLAGS) $< -o $@
@@ -42,4 +43,4 @@ $(TARGETSO): $(OBJS)
 clean:
 	-rm -f $(OBJS) $(TARGETSO)
 	-rm -f *~
-	-rm -f $(OUTPUT_DIR)/$(TARGETSO)
+	-rm -f $(BIN_DIR)/$(TARGETSO)

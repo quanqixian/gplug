@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<gplug>
-	<plugin fkey="DogPlugin" file="../DogPlugin/libDogPlugin.so" delayload="false" />
-	<plugin fkey="CatPlugin" file="../CatPlugin/libCatPlugin.so" delayload="false" />
-</gplug>

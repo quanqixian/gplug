@@ -25,10 +25,10 @@ typedef char PLUGIN_FKEY[256];      // 插件fkey类型;
 /**
  * 接口函数返回值定义
  */
-#define HPLUGIN_OK             (0)                   /* 成功;           */
-#define HPLUGIN_ERR            (-1)                  /* 失败;           */
-#define HPLUGIN_NOTSUPPORT     (-2)                  /* 不支持;         */
-#define HPLUGIN_INVALID_HANDLE NULL                  /* 插件句柄无效值; */
+#define GPLUGIN_OK             (0)                   /* 成功;           */
+#define GPLUGIN_ERR            (-1)                  /* 失败;           */
+#define GPLUGIN_NOTSUPPORT     (-2)                  /* 不支持;         */
+#define GPLUGIN_INVALID_HANDLE NULL                  /* 插件句柄无效值; */
 
 /**
  * 插件必须具备的与插件管理器交互的接口
