@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #if (defined(_WIN32) || defined(_WIN64))
     #include <io.h>
     #include <direct.h>
@@ -19,15 +18,16 @@ struct Plugin
 {
     std::string fkey;
     std::string filePath;
-	void *handler; /* dlopen后获得的动态库句柄 */
-	GPlugin_GetPluginInterface pluginInterface;
+    void *handler; /* dlopen后获得的动态库句柄 */
+    GPlugin_GetPluginInterface pluginInterface;
     bool delayload;
-	Plugin() : handler(NULL), pluginInterface(NULL), delayload(false)
-	{
-	}
+    Plugin() : handler(NULL), pluginInterface(NULL), delayload(false)
+    {
+    }
 };
 
 std::map<std::string, Plugin> m_map;
+std::map<GPluginHandle, Plugin*> m_instanceMap;
 
 static bool isPathExist(std::string path)
 {
@@ -149,75 +149,102 @@ int GPLUG_API GPLUG_Init()
         file = "gplugin/" + file;
         std::string fullpath;
         ret = splicePath(file, fullPath);
-		if(!ret)
-		{
-			GPLUG_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
-			return ret;
-		}
+        if(!ret)
+        {
+            GPLUG_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
+            return ret;
+        }
         p.filePath = fullPath;
 
-		if(m_map.find(p.fkey) != m_map.end())
-		{
-			GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
-			return ret;
-		}
-		m_map[p.fkey] = p;
+        if(m_map.find(p.fkey) != m_map.end())
+        {
+            GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
+            return ret;
+        }
+        m_map[p.fkey] = p;
 
         GPLUG_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
-		
+        
         plugin = plugin->NextSiblingElement("plugin");
     }while(plugin);
 
 
     /* 根据配置文件加载动态库 */
-	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
-	{
-		Plugin & p = iter->second;
-		p.handler = dlopen(p.filePath.c_str(), RTLD_LAZY);
-		if(NULL == p.handler)
-		{
-			GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
-			return false;
-		}
-		p.pluginInterface = (GPlugin_GetPluginInterface)dlsym(p.handler, "GPLUGIN_GetPluginInterface");
-		if(NULL == p.pluginInterface)
-		{
-			GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
-			return false;
-		}
+    for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+    {
+        Plugin & p = iter->second;
+        p.handler = dlopen(p.filePath.c_str(), RTLD_LAZY);
+        if(NULL == p.handler)
+        {
+            GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
+            return false;
+        }
+        p.pluginInterface = (GPlugin_GetPluginInterface)dlsym(p.handler, "GPLUGIN_GetPluginInterface");
+        if(NULL == p.pluginInterface)
+        {
+            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
+            return false;
+        }
 
-		p.pluginInterface()->Init();
+        /* 插件初始化 */
+        p.pluginInterface()->Init();
 
-	}
+    }
     return GPLUG_OK;
 }
 
 void GPLUG_API GPLUG_Uninit()
 {
     /* 卸载打开的库 */
-	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
-	{
-		Plugin & p = iter->second;
-		if(p.handler)
-		{
-			if(p.pluginInterface)
-			{
-				p.pluginInterface()->Uninit();
-			}
+    for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+    {
+        Plugin & p = iter->second;
+        if(p.handler)
+        {
+            if(p.pluginInterface)
+            {
+                /* 插件反初始化 */
+                p.pluginInterface()->Uninit();
+            }
 
-			dlclose(p.handler);
-			p.handler = NULL;
-		}
-	}
+            dlclose(p.handler);
+            p.handler = NULL;
+        }
+    }
+
+    m_map.clear();
 }
 
 int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error)
 {
+    std::map<std::string, Plugin>::iterator iter = m_map.find(fkey);
+    if(iter    == m_map.end())
+    {
+        return false;
+    }
+    
+    Plugin & p = iter->second;
+    p.pluginInterface()->CreateInstance(instance);
+
+    m_instanceMap[*instance] = &p;
+    *plugin_error = 0;
+
     return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 {
+    std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
+    if(iter    == m_instanceMap.end())
+    {
+        return false;
+    }
+    
+    Plugin * p = iter->second;
+    p->pluginInterface()->DestroyInstance(instance);
+    m_instanceMap.erase(iter);
+
+    *plugin_error = 0;
     return GPLUG_OK;
 }
 
@@ -233,28 +260,28 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
 
 int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
 {
-	int i = 0;
-	*fkeysCout = m_map.size();
-	*fkeys = (char**) malloc(sizeof(char*) * (*fkeysCout));
+    int i = 0;
+    *fkeysCout = m_map.size();
+    *fkeys = (char**) malloc(sizeof(char*) * (*fkeysCout));
 
-	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
-	{
-		int len = sizeof(char) * iter->first.length() + 1;
-		(*fkeys)[i] = (char*) malloc(len);
-		memset((*fkeys)[i], 0, len);
-		memcpy((*fkeys)[i], iter->first.c_str(), iter->first.length());
-		i++;
-	}
+    for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+    {
+        int len = sizeof(char) * iter->first.length() + 1;
+        (*fkeys)[i] = (char*) malloc(len);
+        memset((*fkeys)[i], 0, len);
+        memcpy((*fkeys)[i], iter->first.c_str(), iter->first.length());
+        i++;
+    }
 
     return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout)
 {
-	for(unsigned int i = 0; i < fkeysCout; i++)
-	{
-		free(fkeys[i]);
-	}
-	free(fkeys);
+    for(unsigned int i = 0; i < fkeysCout; i++)
+    {
+        free(fkeys[i]);
+    }
+    free(fkeys);
     return GPLUG_OK;
 }

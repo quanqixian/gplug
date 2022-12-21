@@ -4,14 +4,14 @@ SUBDIRS = CatPlugin/src DogPlugin/src Plug
 all:
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
 		echo "make in $$subdir";\
-		pushd $$subdir && $(MAKE);\
-		popd;\
+		cd $$subdir && $(MAKE);\
+		cd -;\
 	done
 
 .PHONY: clean
 clean:
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
 		echo "Clean in $$subdir";\
-		pushd $$subdir && $(MAKE) clean;\
-		popd;\
+		cd $$subdir && $(MAKE) clean;\
+		cd -;\
 	done

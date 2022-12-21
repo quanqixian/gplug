@@ -26,7 +26,7 @@ all: $(TARGETSO)
 
 $(TARGETSO): $(OBJS)
 	$(CXX) $(OPTS) $(LDFLAGS) -o $@ $^ $(LIBS)
-	cp $@  $(BIN_DIR)
+	mkdir -p $(BIN_DIR) && cp $@  $(BIN_DIR)
 
 %.o : %.c
 	$(CC) -c $(OPTS) $(CPPFLAGS) $(CFLAGS) $< -o $@
