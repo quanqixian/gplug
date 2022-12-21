@@ -3,6 +3,9 @@
 #include "Debug.h"
 #include <string>
 #include <map>
+#include <stdlib.h>
+#include <string.h>
+
 
 #if (defined(_WIN32) || defined(_WIN64))
     #include <io.h>
@@ -197,6 +200,11 @@ void GPLUG_API GPLUG_Uninit()
 		Plugin & p = iter->second;
 		if(p.handler)
 		{
+			if(p.pluginInterface)
+			{
+				p.pluginInterface()->Uninit();
+			}
+
 			dlclose(p.handler);
 			p.handler = NULL;
 		}
@@ -225,10 +233,28 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
 
 int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
 {
+	int i = 0;
+	*fkeysCout = m_map.size();
+	*fkeys = (char**) malloc(sizeof(char*) * (*fkeysCout));
+
+	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+	{
+		int len = sizeof(char) * iter->first.length() + 1;
+		(*fkeys)[i] = (char*) malloc(len);
+		memset((*fkeys)[i], 0, len);
+		memcpy((*fkeys)[i], iter->first.c_str(), iter->first.length());
+		i++;
+	}
+
     return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout)
 {
+	for(unsigned int i = 0; i < fkeysCout; i++)
+	{
+		free(fkeys[i]);
+	}
+	free(fkeys);
     return GPLUG_OK;
 }
