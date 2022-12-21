@@ -17,7 +17,11 @@ struct Plugin
     std::string fkey;
     std::string filePath;
 	void *handler; /* dlopen后获得的动态库句柄 */
+	GPlugin_GetPluginInterface pluginInterface;
     bool delayload;
+	Plugin() : handler(NULL), pluginInterface(NULL), delayload(false)
+	{
+	}
 };
 
 std::map<std::string, Plugin> m_map;
@@ -163,7 +167,6 @@ int GPLUG_API GPLUG_Init()
 
 
     /* 根据配置文件加载动态库 */
-
 	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
 	{
 		Plugin & p = iter->second;
@@ -173,6 +176,15 @@ int GPLUG_API GPLUG_Init()
 			GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
 			return false;
 		}
+		p.pluginInterface = (GPlugin_GetPluginInterface)dlsym(p.handler, "GPLUGIN_GetPluginInterface");
+		if(NULL == p.pluginInterface)
+		{
+			GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
+			return false;
+		}
+
+		p.pluginInterface()->Init();
+
 	}
     return GPLUG_OK;
 }
