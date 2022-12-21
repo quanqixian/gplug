@@ -2,13 +2,25 @@
 #include "tinyxml2.h"
 #include "Debug.h"
 #include <string>
+#include <map>
 
 #if (defined(_WIN32) || defined(_WIN64))
     #include <io.h>
     #include <direct.h>
 #else
     #include <unistd.h>
+    #include <dlfcn.h>
 #endif
+
+struct Plugin
+{
+    std::string fkey;
+    std::string filePath;
+	void *handler; /* dlopen后获得的动态库句柄 */
+    bool delayload;
+};
+
+std::map<std::string, Plugin> m_map;
 
 static bool isPathExist(std::string path)
 {
@@ -65,18 +77,18 @@ static bool splicePath(std::string basePath, std::string & retPath)
     fullPath = workDir + std::string("/") + basePath;
 #endif
 
+    /* 设置返回值 */
+    retPath = fullPath;
+
     /* 检查是否存在文件或路径 */
     ret = isPathExist(fullPath);
     if(!ret)
     {
-        GPLUG_LOG_ERROR(-1, "file or dir is not exist, fullPath=%s", fullPath.c_str());
+        GPLUG_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
         return ret;
     }
 
     GPLUG_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
-
-    /* 设置返回值 */
-    retPath = fullPath;
 
     return ret;
 }
@@ -84,58 +96,120 @@ static bool splicePath(std::string basePath, std::string & retPath)
 
 int GPLUG_API GPLUG_Init()
 {
-	/* 读取配置文件 */
-	std::string fullPath;
-	std::string basePath = "gplugin/gplugin.xml";
-	splicePath(basePath, fullPath);
+    bool ret = true;
 
+    /* 拼接配置文件路径 */
+    std::string fullPath;
+    std::string basePath = "gplugin/gplugin.xml";
+    splicePath(basePath, fullPath);
 
-	tinyxml2::XMLDocument doc;
-
-	/* 从文件加载xml */
-	int xmlRet = doc.LoadFile(fullPath.c_str());
-	if(tinyxml2::XML_SUCCESS != xmlRet)
-	{
+    /* 从文件加载xml */
+    tinyxml2::XMLDocument doc;
+    int xmlRet = doc.LoadFile(fullPath.c_str());
+    if(tinyxml2::XML_SUCCESS != xmlRet)
+    {
         GPLUG_LOG_ERROR(doc.ErrorID(), "Fail to load xml file:%s", fullPath.c_str());
-		return 0;
-	}
-	/* 根据配置文件加载动态库 */
+        return false;
+    }
 
-	return GPLUG_OK;
+    /* xml内容校验 */
+    tinyxml2::XMLElement* plugin = NULL; 
+    ret = ret && doc.FirstChildElement("gplug");
+    ret = ret && (plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin"));
+
+    for(; ret && plugin; plugin = plugin->NextSiblingElement("plugin"))
+    {
+        ret = ret && plugin->FindAttribute("fkey");
+        ret = ret && plugin->FindAttribute("file");
+        ret = ret && plugin->FindAttribute("delayload");
+    }
+    if(!ret)
+    {
+        GPLUG_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
+        return ret;
+    }
+
+    /* 读取配置 */
+    plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin");
+    do 
+    {
+        Plugin p;
+        p.fkey = plugin->Attribute("fkey");
+        plugin->QueryBoolAttribute("delayload", &p.delayload);
+    
+        std::string file = plugin->Attribute("file");
+        /* 以配置文件所在目录为基本目录 */
+        file = "gplugin/" + file;
+        std::string fullpath;
+        ret = splicePath(file, fullPath);
+		if(!ret)
+		{
+			GPLUG_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
+			return ret;
+		}
+        p.filePath = fullPath;
+
+		if(m_map.find(p.fkey) != m_map.end())
+		{
+			GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
+			return ret;
+		}
+		m_map[p.fkey] = p;
+
+        GPLUG_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
+		
+        plugin = plugin->NextSiblingElement("plugin");
+    }while(plugin);
+
+
+    /* 根据配置文件加载动态库 */
+
+	for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+	{
+
+		Plugin & p = iter->second;
+		p.handler = dlopen(p.filePath.c_str(), RTLD_LAZY);
+		if(NULL == p.handler)
+		{
+			GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
+			return false;
+		}
+	}
+    return GPLUG_OK;
 }
 
 void GPLUG_API GPLUG_Uninit()
 {
-	/* 卸载打开的库 */
-	return;
+    /* 卸载打开的库 */
+    return;
 }
 
 int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error)
 {
-	return GPLUG_OK;
+    return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 {
-	return GPLUG_OK;
+    return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
 {
-	return GPLUG_OK;
+    return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
 {
-	return GPLUG_OK;
+    return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
 {
-	return GPLUG_OK;
+    return GPLUG_OK;
 }
 
 int GPLUG_API GPLUG_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout)
 {
-	return GPLUG_OK;
+    return GPLUG_OK;
 }

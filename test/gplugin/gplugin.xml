@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<hplug>
-	<plugin fkey="DogPlugin" file="../../DogPlugin/bin/libDogPlugin.so" delayload="false" />
-	<plugin fkey="CatPlugin" file="../../CatPlugin/bin/libCatPlugin.so" delayload="false" />
-	<plugin fkey="RatPlugin" file="../../RatPlugin/bin/libRatPlugin.so" delayload="false" />
-</hplug>
+<gplug>
+	<plugin fkey="DogPlugin" file="../DogPlugin/libDogPlugin.so" delayload="false" />
+	<plugin fkey="CatPlugin" file="../CatPlugin/libCatPlugin.so" delayload="false" />
+</gplug>

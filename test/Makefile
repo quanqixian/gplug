@@ -5,7 +5,8 @@ $(TARGET): main.cpp
         -L../bin/         \
         -Wl,-rpath='$$ORIGIN:$$ORIGIN/../bin' \
         -lgplug \
-        -lpthread
+        -lpthread\
+		-ldl
 
 .PHONY:clean
 clean:
