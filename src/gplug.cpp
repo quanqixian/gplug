@@ -88,7 +88,17 @@ int GPLUG_API GPLUG_Init()
 	std::string fullPath;
 	std::string basePath = "gplugin/gplugin.xml";
 	splicePath(basePath, fullPath);
-	
+
+
+	tinyxml2::XMLDocument doc;
+
+	/* 从文件加载xml */
+	int xmlRet = doc.LoadFile(fullPath.c_str());
+	if(tinyxml2::XML_SUCCESS != xmlRet)
+	{
+        GPLUG_LOG_ERROR(doc.ErrorID(), "Fail to load xml file:%s", fullPath.c_str());
+		return 0;
+	}
 	/* 根据配置文件加载动态库 */
 
 	return GPLUG_OK;
