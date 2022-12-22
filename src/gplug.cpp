@@ -218,7 +218,7 @@ void GPLUG_API GPLUG_Uninit()
 int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error)
 {
     std::map<std::string, Plugin>::iterator iter = m_map.find(fkey);
-    if(iter    == m_map.end())
+    if(iter == m_map.end())
     {
         return false;
     }
@@ -235,7 +235,7 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
 int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 {
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
-    if(iter    == m_instanceMap.end())
+    if(iter == m_instanceMap.end())
     {
         return false;
     }
@@ -250,6 +250,16 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 
 int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
 {
+    std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
+    if(iter == m_instanceMap.end())
+    {
+        return false;
+    }
+    
+    Plugin * p = iter->second;
+    p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
+    *plugin_error = 0;
+
     return GPLUG_OK;
 }
 
