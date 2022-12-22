@@ -17,6 +17,7 @@
 struct Plugin
 {
     std::string fkey;
+    std::string file;
     std::string filePath;
     void *handler; /* dlopen后获得的动态库句柄 */
     GPlugin_GetPluginInterface pluginInterface;
@@ -145,6 +146,7 @@ int GPLUG_API GPLUG_Init()
         plugin->QueryBoolAttribute("delayload", &p.delayload);
     
         std::string file = plugin->Attribute("file");
+		p.file = file;
         /* 以配置文件所在目录为基本目录 */
         file = "gplugin/" + file;
         std::string fullpath;
@@ -265,6 +267,36 @@ int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPl
 
 int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
 {
+    std::map<std::string, Plugin>::iterator iter = m_map.find(fkey);
+    if(iter == m_map.end())
+    {
+        return false;
+    }
+
+    Plugin & p = iter->second;
+
+	std::string value;
+	if(std::string("file") == attributeName)
+	{
+		value = p.file;
+	}
+	else if(std::string("delayload") == attributeName)
+	{
+		value = p.delayload ? "true" : "false";
+	}
+	else
+	{
+		return false;
+	}
+
+	if(*bufLen < (value.size() + 1))
+	{
+		return false;
+	}
+
+	strncpy(attributeValue, value.c_str(), value.size());
+	attributeValue[value.size()] = 0;
+
     return GPLUG_OK;
 }
 

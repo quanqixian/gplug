@@ -60,6 +60,19 @@ int main(int argc, const char *argv[])
             GPLUG_LOG_INFO("fkey=%s, weight=%s", fkeys[i], p->weight().c_str());
         }
 
+		/* 查询插件属性 */
+		{
+			char attrBuf[256] = {0};
+			unsigned int attrLen = sizeof(attrBuf);
+			ret = GPLUG_QueryConfigAttribute(fkeys[i], "file", attrBuf, &attrLen);
+			if(0 != ret)
+			{
+				GPLUG_LOG_ERROR(ret, "GPLUG_QueryConfigAttribute error");
+				return ret;
+			}
+			GPLUG_LOG_INFO("file=%s", attrBuf);
+		}
+
         ret = GPLUG_DestroyInstance(instance, &errCode);
         if(0 != ret)
         {
