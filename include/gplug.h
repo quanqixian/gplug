@@ -21,9 +21,9 @@
 /*
  * 插件管理器类型、常量、错误码定义
  */
-#define GPLUG_OK                    0 ///< 操作成功。
-#define GPLUG_ERR                   -1 ///< 操作失败。
-#define GPLUG_E_Base                ((int)0x80000000)     /* 错误码基数。                                                                                */
+#define GPLUG_OK                    (0)                   /* 操作成功 */
+#define GPLUG_ERR                   (-1)                  /* 操作失败 */
+#define GPLUG_E_Base                ((int)0x80000000)     /* 错误码基数0x80000000, 错误码最高位为1。                                                     */
 #define GPLUG_E_InvalidParam        (GPLUG_E_Base + 1)    /* 输入参数无效。                                                                              */
 #define GPLUG_E_FileNotExist        (GPLUG_E_Base + 2)    /* 插件库文件不存在。                                                                          */
 #define GPLUG_E_FkeyNotExist        (GPLUG_E_Base + 3)    /* 插件不存在（插件功能标识不存在）。                                                          */
