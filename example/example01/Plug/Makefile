@@ -1,9 +1,9 @@
 TARGET=test
 $(TARGET): main.cpp
-	g++ $^ -o $@            \
+	g++ $^ -o $@               \
         -I../../../include/    \
-        -I../../../include/interface    \
         -L../../../lib/        \
+        -I../interface         \
         -Wl,-rpath='$$ORIGIN:$$ORIGIN/../../../lib' \
         -lgplug \
         -lpthread\

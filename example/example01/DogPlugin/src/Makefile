@@ -3,7 +3,7 @@ include ./Rules.make
 ROOT_PATH = ../../../..
 CPPFLAGS = -I. \
            -I$(ROOT_PATH)/include \
-		   -I$(ROOT_PATH)/include/interface/
+		   -I../../interface/
 
 BIN_DIR = ../bin
 LIBS_DIR = $(ROOT_PATH)/lib/ 
