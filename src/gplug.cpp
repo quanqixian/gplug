@@ -213,8 +213,7 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
     
     Plugin & p = iter->second;
 
-
-    /* 由于延长加载未加载插件，使用是加载 */
+    /* 由于延长加载未加载插件，第一次使用时加载 */
     if(NULL == p.pluginInterface)
     {
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
@@ -260,7 +259,7 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
     if(iter == m_instanceMap.end())
     {
-        return false;
+        return GPLUG_ERR;
     }
     
     Plugin * p = iter->second;
@@ -283,7 +282,7 @@ int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPl
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
     if(iter == m_instanceMap.end())
     {
-        return false;
+        return GPLUG_ERR;
     }
     
     Plugin * p = iter->second;
@@ -300,7 +299,7 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
     std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
     if(iter == m_pluginMap.end())
     {
-        return false;
+        return GPLUG_ERR;
     }
 
     Plugin & p = iter->second;
@@ -316,12 +315,12 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
     }
     else
     {
-        return false;
+        return GPLUG_ERR;
     }
 
     if(*bufLen < (value.size() + 1))
     {
-        return false;
+        return GPLUG_ERR;
     }
 
     strncpy(attributeValue, value.c_str(), value.size());
