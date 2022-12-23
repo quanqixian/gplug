@@ -146,12 +146,19 @@ private:
     Mutex& operator = (const Mutex &);
     friend class LockGuard;
 private:
+#if (defined(_WIN32) || defined(_WIN64))
+    HANDLE m_mutex; 
+#else
     pthread_mutex_t m_mutex;
+#endif
     RecursionMode m_recursionMode;
 };
 
 Mutex::Mutex(RecursionMode mode) : m_recursionMode(mode)
 {
+#if (defined(_WIN32) || defined(_WIN64))
+    m_mutex = CreateMutex(NULL, false, NULL);
+#else
     if(m_recursionMode == Recursive)
     {
         pthread_mutexattr_t mutexattr;
@@ -164,21 +171,38 @@ Mutex::Mutex(RecursionMode mode) : m_recursionMode(mode)
     {
         pthread_mutex_init(&m_mutex, NULL);
     }
+#endif
 }
 
 Mutex::~Mutex()
 {
+#if (defined(_WIN32) || defined(_WIN64))
+    if(m_mutex)
+    {
+        CloseHandle(m_mutex);
+        m_mutex = NULL;
+    }
+#else
     pthread_mutex_destroy(&m_mutex);
+#endif
 }
 
 void Mutex::lock()
 {
+#if (defined(_WIN32) || defined(_WIN64))
+    WaitForSingleObject(m_mutex, INFINITE); 
+#else
     pthread_mutex_lock(&m_mutex);
+#endif
 }
 
 void Mutex::unlock()
 {
+#if (defined(_WIN32) || defined(_WIN64))
+    ReleaseMutex(m_mutex);
+#else
     pthread_mutex_unlock(&m_mutex);
+#endif
 }
 
 bool Mutex::tryLock()
