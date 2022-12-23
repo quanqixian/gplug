@@ -1,26 +1,21 @@
 #include "gplug.h"
 #include "tinyxml2.h"
 #include "Debug.h"
+#include "SysWrapper.h"
+
 #include <string>
 #include <map>
 #include <stdlib.h>
 #include <string.h>
 
-#if (defined(_WIN32) || defined(_WIN64))
-    #include <io.h>
-    #include <direct.h>
-    #include <windows.h>
-#else
-    #include <unistd.h>
-    #include <dlfcn.h>
-#endif
+using namespace SysWrapper;
 
 struct Plugin
 {
     std::string fkey;
-    std::string file;
+    std::string file;    
     std::string filePath;
-    void *handler; /* dlopen后获得的动态库句柄 */
+    void *handler; /* 打开动态库后获得的动态库句柄 */
     GPlugin_GetPluginInterface pluginInterface;
     bool delayload;
     Plugin() : handler(NULL), pluginInterface(NULL), delayload(false)
@@ -31,119 +26,6 @@ struct Plugin
 std::map<std::string, Plugin> m_map;
 std::map<GPluginHandle, Plugin*> m_instanceMap;
 
-static bool isPathExist(std::string path)
-{
-    bool ret = true;
-
-#if (defined(_WIN32) || defined(_WIN64))
-    ret = (0 == _access(path.c_str(), 0));
-#else
-    ret = (0 == access(path.c_str(), F_OK));
-#endif
-
-    return ret;
-}
-
-static bool getCurrentWorkDir(std::string & path)
-{
-    bool ret = true;
-    char buf[512] = {0};
-
-#if (defined(_WIN32) || defined(_WIN64))
-    ret = (NULL != _getcwd(buf, sizeof(buf)));
-#else
-    ret = (NULL != getcwd(buf, sizeof(buf)));
-#endif
-
-    path = buf;
-    return ret;
-}
-
-/**
- * @brief      拼接路径
- * @param[in]  basePath : 基础路径
- * @param[out] retPath : 全路径
- * @return     true : success false : fail
- */
-static bool splicePath(std::string basePath, std::string & retPath)
-{
-    bool ret = true;
-    std::string workDir;
-    std::string fullPath;
-
-    /* 获取当前工作路径 */
-    ret = getCurrentWorkDir(workDir);
-    if(!ret)
-    {
-        GPLUG_LOG_ERROR(-1, "file to getCurrentWorkDir");
-        return ret;
-    }
-
-    /* 拼接全路径 */
-#if (defined(_WIN32) || defined(_WIN64))
-    fullPath = workDir + std::string("\\") + basePath;
-#else
-    fullPath = workDir + std::string("/") + basePath;
-#endif
-
-    /* 设置返回值 */
-    retPath = fullPath;
-
-    /* 检查是否存在文件或路径 */
-    ret = isPathExist(fullPath);
-    if(!ret)
-    {
-        GPLUG_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
-        return ret;
-    }
-
-    GPLUG_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
-
-    return ret;
-}
-
-class DLAPI
-{
-#if (defined(_WIN32) || defined(_WIN64))
-    typedef HMODULE DLHandle;  
-#else
-    typedef void* DLHandle;  
-#endif
-
-public:
-    static DLHandle open(const char * path)
-    {
-        DLHandle handler = NULL;
-#if (defined(_WIN32) || defined(_WIN64))
-        handler = LoadLibrary(path);
-#else
-        handler = dlopen(path, RTLD_LAZY);
-#endif
-        return handler;
-    }
-    static void* getSym(DLHandle handler, const char * sym)
-    {
-        void * ret = NULL;
-#if (defined(_WIN32) || defined(_WIN64))
-        ret = GetProcAddress(handler, sym);
-#else
-        ret = dlsym(handler, sym);
-#endif
-        return ret;
-    }
-    static int close(DLHandle handler)
-    {
-#if (defined(_WIN32) || defined(_WIN64))
-        return FreeLibrary(handler) ? 0 : 1;
-#else
-        return dlclose(handler);
-#endif
-    }
-
-
-};
-
-
 int GPLUG_API GPLUG_Init()
 {
     bool ret = true;
@@ -151,7 +33,7 @@ int GPLUG_API GPLUG_Init()
     /* 拼接配置文件路径 */
     std::string fullPath;
     std::string basePath = "gplugin/gplugin.xml";
-    ret = splicePath(basePath, fullPath);
+    ret = PathWrapper::splicePath(basePath, fullPath);
     if(!ret)
     {
         GPLUG_LOG_ERROR(GPLUG_E_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
@@ -197,7 +79,7 @@ int GPLUG_API GPLUG_Init()
         /* 以配置文件所在目录为基本目录 */
         file = "gplugin/" + file;
         std::string fullpath;
-        ret = splicePath(file, fullPath);
+        ret = PathWrapper::splicePath(file, fullPath);
         if(!ret)
         {
             GPLUG_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
@@ -222,13 +104,13 @@ int GPLUG_API GPLUG_Init()
     for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
     {
         Plugin & p = iter->second;
-        p.handler = DLAPI::open(p.filePath.c_str());
+        p.handler = DLWrapper::open(p.filePath.c_str());
         if(NULL == p.handler)
         {
             GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLAPI::getSym(p.handler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.handler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
@@ -261,7 +143,7 @@ void GPLUG_API GPLUG_Uninit()
                 p.pluginInterface()->Uninit();
             }
 
-            DLAPI::close(p.handler);
+            DLWrapper::close(p.handler);
             p.handler = NULL;
         }
     }
