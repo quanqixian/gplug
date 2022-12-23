@@ -9,6 +9,7 @@
 #if (defined(_WIN32) || defined(_WIN64))
     #include <io.h>
     #include <direct.h>
+    #include <windows.h>
 #else
     #include <unistd.h>
     #include <dlfcn.h>
@@ -101,6 +102,47 @@ static bool splicePath(std::string basePath, std::string & retPath)
     return ret;
 }
 
+class DLAPI
+{
+#if (defined(_WIN32) || defined(_WIN64))
+    typedef HMODULE DLHandle;  
+#else
+    typedef void* DLHandle;  
+#endif
+
+public:
+    static DLHandle open(const char * path)
+    {
+        DLHandle handler = NULL;
+#if (defined(_WIN32) || defined(_WIN64))
+        handler = LoadLibrary(path);
+#else
+        handler = dlopen(path, RTLD_LAZY);
+#endif
+        return handler;
+    }
+    static void* getSym(DLHandle handler, const char * sym)
+    {
+        void * ret = NULL;
+#if (defined(_WIN32) || defined(_WIN64))
+        ret = GetProcAddress(handler, sym);
+#else
+        ret = dlsym(handler, sym);
+#endif
+        return ret;
+    }
+    static int close(DLHandle handler)
+    {
+#if (defined(_WIN32) || defined(_WIN64))
+        return FreeLibrary(handler) ? 0 : 1;
+#else
+        return dlclose(handler);
+#endif
+    }
+
+
+};
+
 
 int GPLUG_API GPLUG_Init()
 {
@@ -180,13 +222,13 @@ int GPLUG_API GPLUG_Init()
     for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
     {
         Plugin & p = iter->second;
-        p.handler = dlopen(p.filePath.c_str(), RTLD_LAZY);
+        p.handler = DLAPI::open(p.filePath.c_str());
         if(NULL == p.handler)
         {
             GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)dlsym(p.handler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLAPI::getSym(p.handler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
@@ -219,7 +261,7 @@ void GPLUG_API GPLUG_Uninit()
                 p.pluginInterface()->Uninit();
             }
 
-            dlclose(p.handler);
+            DLAPI::close(p.handler);
             p.handler = NULL;
         }
     }
