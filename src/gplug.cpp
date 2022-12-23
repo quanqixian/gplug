@@ -13,20 +13,21 @@ using namespace SysWrapper;
 struct Plugin
 {
     std::string fkey;
-    std::string file;    
+    std::string file;
     std::string filePath;
-    void *handler; /* 打开动态库后获得的动态库句柄 */
+    void *dlHandler; /* 打开动态库后获得的动态库句柄 */
     GPlugin_GetPluginInterface pluginInterface;
     bool delayload;
-    Plugin() : handler(NULL), pluginInterface(NULL), delayload(false)
+    Plugin() : dlHandler(NULL), pluginInterface(NULL), delayload(false)
     {
     }
 };
 
-std::map<std::string, Plugin> m_map;
+std::map<std::string, Plugin> m_pluginMap;
 std::map<GPluginHandle, Plugin*> m_instanceMap;
+SysWrapper::Mutex m_mutex;
 
-int GPLUG_API GPLUG_Init()
+static int loadConfigFile()
 {
     bool ret = true;
 
@@ -66,6 +67,9 @@ int GPLUG_API GPLUG_Init()
         return GPLUG_E_InvalidConfigFile;
     }
 
+    /* 上锁 */
+    LockGuard guard(&m_mutex);
+
     /* 读取配置 */
     plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin");
     do 
@@ -87,30 +91,37 @@ int GPLUG_API GPLUG_Init()
         }
         p.filePath = fullPath;
 
-        if(m_map.find(p.fkey) != m_map.end())
+        if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
         {
             GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
             return GPLUG_E_InvalidConfigFile;
         }
-        m_map[p.fkey] = p;
+        m_pluginMap[p.fkey] = p;
 
         GPLUG_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
         
         plugin = plugin->NextSiblingElement("plugin");
     }while(plugin);
 
+    return GPLUG_OK;
+}
+
+static int loadPlugins()
+{
+    /* 上锁 */
+    LockGuard guard(&m_mutex);
 
     /* 根据配置文件加载动态库 */
-    for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+    for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
         Plugin & p = iter->second;
-        p.handler = DLWrapper::open(p.filePath.c_str());
-        if(NULL == p.handler)
+        p.dlHandler = DLWrapper::open(p.filePath.c_str());
+        if(NULL == p.dlHandler)
         {
-            GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
+            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.handler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
@@ -129,13 +140,37 @@ int GPLUG_API GPLUG_Init()
     return GPLUG_OK;
 }
 
+int GPLUG_API GPLUG_Init()
+{
+    int ret = GPLUG_OK;
+
+    /* 加载配置参数 */
+    ret = loadConfigFile();
+    if(GPLUG_OK != ret)
+    {
+        GPLUG_LOG_ERROR(ret, "Fail to load confiugure file");
+        return ret;
+    }
+
+    /* 加载插件 */
+    ret = loadPlugins();
+    {
+        GPLUG_LOG_ERROR(ret, "Fail to load plugins");
+        return ret;
+    }
+
+    return GPLUG_OK;
+}
+
 void GPLUG_API GPLUG_Uninit()
 {
+    LockGuard guard(&m_mutex);
+
     /* 卸载打开的库 */
-    for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+    for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
         Plugin & p = iter->second;
-        if(p.handler)
+        if(p.dlHandler)
         {
             if(p.pluginInterface)
             {
@@ -143,18 +178,20 @@ void GPLUG_API GPLUG_Uninit()
                 p.pluginInterface()->Uninit();
             }
 
-            DLWrapper::close(p.handler);
-            p.handler = NULL;
+            DLWrapper::close(p.dlHandler);
+            p.dlHandler = NULL;
         }
     }
 
-    m_map.clear();
+    m_pluginMap.clear();
 }
 
 int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error)
 {
-    std::map<std::string, Plugin>::iterator iter = m_map.find(fkey);
-    if(iter == m_map.end())
+    LockGuard guard(&m_mutex);
+
+    std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
+    if(iter == m_pluginMap.end())
     {
         return false;
     }
@@ -170,6 +207,8 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
 
 int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 {
+    LockGuard guard(&m_mutex);
+
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
     if(iter == m_instanceMap.end())
     {
@@ -186,6 +225,8 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 
 int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
 {
+    LockGuard guard(&m_mutex);
+
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
     if(iter == m_instanceMap.end())
     {
@@ -201,8 +242,10 @@ int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPl
 
 int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
 {
-    std::map<std::string, Plugin>::iterator iter = m_map.find(fkey);
-    if(iter == m_map.end())
+    LockGuard guard(&m_mutex);
+
+    std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
+    if(iter == m_pluginMap.end())
     {
         return false;
     }
@@ -236,11 +279,13 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
 
 int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
 {
+    LockGuard guard(&m_mutex);
+
     int i = 0;
-    *fkeysCout = m_map.size();
+    *fkeysCout = m_pluginMap.size();
     *fkeys = (char**) malloc(sizeof(char*) * (*fkeysCout));
 
-    for(std::map<std::string, Plugin>::iterator iter = m_map.begin(); iter != m_map.end(); ++iter)
+    for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
         int len = sizeof(char) * iter->first.length() + 1;
         (*fkeys)[i] = (char*) malloc(len);
