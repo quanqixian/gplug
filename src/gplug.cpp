@@ -115,6 +115,13 @@ static int loadPlugins()
     for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
         Plugin & p = iter->second;
+    
+        if(p.delayload)
+        {
+            GPLUG_LOG_INFO("fkey:%s delayload", p.fkey.c_str());
+            continue;
+        }
+
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
         if(NULL == p.dlHandler)
         {
@@ -154,6 +161,7 @@ int GPLUG_API GPLUG_Init()
 
     /* 加载插件 */
     ret = loadPlugins();
+    if(GPLUG_OK != ret)
     {
         GPLUG_LOG_ERROR(ret, "Fail to load plugins");
         return ret;
@@ -165,6 +173,14 @@ int GPLUG_API GPLUG_Init()
 void GPLUG_API GPLUG_Uninit()
 {
     LockGuard guard(&m_mutex);
+
+    /* 销毁所有实例 */
+    for(std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.begin(); iter != m_instanceMap.end(); ++ iter)
+    {
+        Plugin * p = iter->second;
+        p->pluginInterface()->DestroyInstance(iter->first);
+    }
+    m_instanceMap.clear();
 
     /* 卸载打开的库 */
     for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
@@ -182,7 +198,6 @@ void GPLUG_API GPLUG_Uninit()
             p.dlHandler = NULL;
         }
     }
-
     m_pluginMap.clear();
 }
 
@@ -193,10 +208,38 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
     std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
     if(iter == m_pluginMap.end())
     {
-        return false;
+        return GPLUG_ERR;
     }
     
     Plugin & p = iter->second;
+
+
+    /* 由于延长加载未加载插件，使用是加载 */
+    if(NULL == p.pluginInterface)
+    {
+        p.dlHandler = DLWrapper::open(p.filePath.c_str());
+        if(NULL == p.dlHandler)
+        {
+            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
+            return GPLUG_E_LoadDsoFailed;
+        }
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
+        if(NULL == p.pluginInterface)
+        {
+            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
+            return GPLUG_E_InvalidPlugin;
+        }
+
+        /* 插件初始化 */
+        int pRet = p.pluginInterface()->Init();
+        if(0 != pRet)
+        {
+            GPLUG_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            return GPLUG_E_InitPluginFailed;
+        }
+        GPLUG_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
+    }
+
     p.pluginInterface()->CreateInstance(instance);
 
     m_instanceMap[*instance] = &p;
@@ -207,6 +250,11 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
 
 int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 {
+    if(NULL == instance)
+    {
+        return GPLUG_ERR;
+    }
+
     LockGuard guard(&m_mutex);
 
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
@@ -225,6 +273,11 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
 
 int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
 {
+    if(NULL == instance)
+    {
+        return GPLUG_ERR;
+    }
+
     LockGuard guard(&m_mutex);
 
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
