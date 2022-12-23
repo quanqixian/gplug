@@ -109,7 +109,12 @@ int GPLUG_API GPLUG_Init()
     /* 拼接配置文件路径 */
     std::string fullPath;
     std::string basePath = "gplugin/gplugin.xml";
-    splicePath(basePath, fullPath);
+    ret = splicePath(basePath, fullPath);
+    if(!ret)
+    {
+        GPLUG_LOG_ERROR(GPLUG_E_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
+        return GPLUG_E_FileNotExist;
+    }
 
     /* 从文件加载xml */
     tinyxml2::XMLDocument doc;
@@ -117,7 +122,7 @@ int GPLUG_API GPLUG_Init()
     if(tinyxml2::XML_SUCCESS != xmlRet)
     {
         GPLUG_LOG_ERROR(doc.ErrorID(), "Fail to load xml file:%s", fullPath.c_str());
-        return false;
+        return GPLUG_E_InvalidConfigFile;
     }
 
     /* xml内容校验 */
@@ -134,7 +139,7 @@ int GPLUG_API GPLUG_Init()
     if(!ret)
     {
         GPLUG_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
-        return ret;
+        return GPLUG_E_InvalidConfigFile;
     }
 
     /* 读取配置 */
@@ -146,7 +151,7 @@ int GPLUG_API GPLUG_Init()
         plugin->QueryBoolAttribute("delayload", &p.delayload);
     
         std::string file = plugin->Attribute("file");
-		p.file = file;
+        p.file = file;
         /* 以配置文件所在目录为基本目录 */
         file = "gplugin/" + file;
         std::string fullpath;
@@ -154,14 +159,14 @@ int GPLUG_API GPLUG_Init()
         if(!ret)
         {
             GPLUG_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
-            return ret;
+            return GPLUG_E_FileNotExist;
         }
         p.filePath = fullPath;
 
         if(m_map.find(p.fkey) != m_map.end())
         {
             GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
-            return ret;
+            return GPLUG_E_InvalidConfigFile;
         }
         m_map[p.fkey] = p;
 
@@ -179,19 +184,24 @@ int GPLUG_API GPLUG_Init()
         if(NULL == p.handler)
         {
             GPLUG_LOG_ERROR(-1, "Loads the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
-            return false;
+            return GPLUG_E_LoadDsoFailed;
         }
         p.pluginInterface = (GPlugin_GetPluginInterface)dlsym(p.handler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
-            return false;
+            return GPLUG_E_InvalidPlugin;
         }
 
         /* 插件初始化 */
-        p.pluginInterface()->Init();
-
+        int pRet = p.pluginInterface()->Init();
+        if(0 != pRet)
+        {
+            GPLUG_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            return GPLUG_E_InitPluginFailed;
+        }
     }
+
     return GPLUG_OK;
 }
 
@@ -275,27 +285,27 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
 
     Plugin & p = iter->second;
 
-	std::string value;
-	if(std::string("file") == attributeName)
-	{
-		value = p.file;
-	}
-	else if(std::string("delayload") == attributeName)
-	{
-		value = p.delayload ? "true" : "false";
-	}
-	else
-	{
-		return false;
-	}
+    std::string value;
+    if(std::string("file") == attributeName)
+    {
+        value = p.file;
+    }
+    else if(std::string("delayload") == attributeName)
+    {
+        value = p.delayload ? "true" : "false";
+    }
+    else
+    {
+        return false;
+    }
 
-	if(*bufLen < (value.size() + 1))
-	{
-		return false;
-	}
+    if(*bufLen < (value.size() + 1))
+    {
+        return false;
+    }
 
-	strncpy(attributeValue, value.c_str(), value.size());
-	attributeValue[value.size()] = 0;
+    strncpy(attributeValue, value.c_str(), value.size());
+    attributeValue[value.size()] = 0;
 
     return GPLUG_OK;
 }

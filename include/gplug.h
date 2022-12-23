@@ -21,24 +21,28 @@
 /*
  * 插件管理器类型、常量、错误码定义
  */
-#define GPLUG_OK                    (0)                   /* 操作成功 */
-#define GPLUG_ERR                   (-1)                  /* 操作失败 */
-#define GPLUG_E_Base                ((int)0x80000000)     /* 错误码基数0x80000000, 错误码最高位为1。                                                     */
-#define GPLUG_E_InvalidParam        (GPLUG_E_Base + 1)    /* 输入参数无效。                                                                              */
-#define GPLUG_E_FileNotExist        (GPLUG_E_Base + 2)    /* 插件库文件不存在。                                                                          */
-#define GPLUG_E_FkeyNotExist        (GPLUG_E_Base + 3)    /* 插件不存在（插件功能标识不存在）。                                                          */
-#define GPLUG_E_IkeyNotExist        (GPLUG_E_Base + 4)    /* 插件功能接口集不存在（插件功能接口集标识不存在）。                                          */
-#define GPLUG_E_InvalidPlugin       (GPLUG_E_Base + 5)    /* 无效的插件（未按规则导出 Hplugin_GetPluginInterface 接口，或与插件管理器交互的接口集无效）。*/
-#define GPLUG_E_LoadDsoFailed       (GPLUG_E_Base + 6)    /* 加载插件库失败。                                                                            */
-#define GPLUG_E_UnloadDsoFailed     (GPLUG_E_Base + 7)    /* 卸载插件库失败。                                                                            */
-#define GPLUG_E_OutOfMemory         (GPLUG_E_Base + 8)    /* 申请内存失败。                                                                              */
-#define GPLUG_E_ParseXmlFailed      (GPLUG_E_Base + 9)    /* 解析配置文件失败。                                                                          */
-#define GPLUG_E_MemoryNotEnough     (GPLUG_E_Base + 10)   /* 缓冲区空间不足。                                                                            */
-#define GPLUG_E_InitPluginFailed    (GPLUG_E_Base + 11)   /* 初始化插件失败。                                                                            */
-#define GPLUG_E_UninitPluginFailed  (GPLUG_E_Base + 12)   /* 反初始化插件失败。                                                                          */
-#define GPLUG_E_PluginConflict      (GPLUG_E_Base + 13)   /* 插件之间冲突（如插件库文件名相同、插件标识相同等）。                                        */
-#define GPLUG_E_InstanceConflict    (GPLUG_E_Base + 14)   /* 插件实例冲突（存在插件实例相同）。                                                          */
-#define GPLUG_E_NotSupport          (GPLUG_E_Base + 1000) /* 不支持。                                                                                    */
+enum GPlugErrorCode
+{
+    GPLUG_OK                     = 0,                 /* 操作成功 */
+    GPLUG_ERR                    = -1,                /* 操作失败 */
+
+    GPLUG_E_InvalidParam         = (0x8000 + 1),      /* 输入参数无效。                                                        */
+    GPLUG_E_FileNotExist,       /* 插件库文件不存在。                                                                          */
+    GPLUG_E_FkeyNotExist,       /* 插件不存在（插件功能标识不存在）。                                                          */
+    GPLUG_E_IkeyNotExist,       /* 插件功能接口集不存在（插件功能接口集标识不存在）。                                          */
+    GPLUG_E_InvalidPlugin,      /* 无效的插件（未按规则导出 Hplugin_GetPluginInterface 接口，或与插件管理器交互的接口集无效）。*/
+    GPLUG_E_LoadDsoFailed,      /* 加载插件库失败。                                                                            */
+    GPLUG_E_UnloadDsoFailed,    /* 卸载插件库失败。                                                                            */
+    GPLUG_E_OutOfMemory,        /* 申请内存失败。                                                                              */
+    GPLUG_E_ParseXmlFailed,     /* 解析配置文件失败。                                                                          */
+    GPLUG_E_MemoryNotEnough,    /* 缓冲区空间不足。                                                                            */
+    GPLUG_E_InitPluginFailed,   /* 初始化插件失败。                                                                            */
+    GPLUG_E_UninitPluginFailed, /* 反初始化插件失败。                                                                          */
+    GPLUG_E_PluginConflict,     /* 插件之间冲突（如插件库文件名相同、插件标识相同等）。                                        */
+    GPLUG_E_InstanceConflict,   /* 插件实例冲突（存在插件实例相同）。                                                          */
+    GPLUG_E_InvalidConfigFile,  /* 无效的配置文件                                                                              */
+    GPLUG_E_NotSupport          /* 不支持。                                                                                    */
+};
 
 /**
  *  @brief 插件功能标识集合
