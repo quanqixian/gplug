@@ -130,90 +130,115 @@ public:
     }
 };
 
-class Mutex
-{
-public:
-    enum RecursionMode {NonRecursive, Recursive};
-public:
-    explicit Mutex(RecursionMode mode = NonRecursive);
-    ~Mutex();
-    void lock();
-    void unlock();
-    bool tryLock();
-    bool isRecursive() const;
-private:
-    Mutex(Mutex &);
-    Mutex& operator = (const Mutex &);
-    friend class LockGuard;
-private:
 #if (defined(_WIN32) || defined(_WIN64))
-    HANDLE m_mutex; 
-#else
-    pthread_mutex_t m_mutex;
-#endif
-    RecursionMode m_recursionMode;
-};
-
-Mutex::Mutex(RecursionMode mode) : m_recursionMode(mode)
-{
-#if (defined(_WIN32) || defined(_WIN64))
-    m_mutex = CreateMutex(NULL, false, NULL);
-#else
-    if(m_recursionMode == Recursive)
+    class Mutex
     {
-        pthread_mutexattr_t mutexattr;
-        pthread_mutexattr_init(&mutexattr);
-        pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
-        pthread_mutex_init(&m_mutex, &mutexattr);
-        pthread_mutexattr_destroy(&mutexattr);
-    }
-    else
+    public:
+        explicit Mutex();
+        ~Mutex();
+        void lock();
+        void unlock();
+        bool isRecursive() const;
+    private:
+        Mutex(Mutex &);
+        Mutex& operator = (const Mutex &);
+        friend class LockGuard;
+    private:
+        HANDLE m_mutex; 
+    };
+
+    Mutex::Mutex()
     {
-        pthread_mutex_init(&m_mutex, NULL);
+        m_mutex = CreateMutex(NULL, false, NULL);
+        if(NULL == m_mutex)
+        {
+            throw std::bad_alloc();
+        }
     }
-#endif
-}
 
-Mutex::~Mutex()
-{
-#if (defined(_WIN32) || defined(_WIN64))
-    if(m_mutex)
+    Mutex::~Mutex()
     {
-        CloseHandle(m_mutex);
-        m_mutex = NULL;
+        if(m_mutex)
+        {
+            CloseHandle(m_mutex);
+            m_mutex = NULL;
+        }
+    }
+
+    void Mutex::lock()
+    {
+        int ret = WaitForSingleObject(m_mutex, INFINITE);
+        switch(ret)
+        {
+        case WAIT_FAILED:
+            throw std::runtime_error;
+            break;
+        default:
+            break;
+        }
+    }
+
+    void Mutex::unlock()
+    {
+        ReleaseMutex(m_mutex);
     }
 #else
-    pthread_mutex_destroy(&m_mutex);
+    class Mutex
+    {
+    public:
+        enum RecursionMode {NonRecursive, Recursive};
+    public:
+        explicit Mutex(RecursionMode mode = NonRecursive);
+        ~Mutex();
+        void lock();
+        void unlock();
+        bool isRecursive() const;
+    private:
+        Mutex(Mutex &);
+        Mutex& operator = (const Mutex &);
+        friend class LockGuard;
+    private:
+        pthread_mutex_t m_mutex;
+        RecursionMode m_recursionMode;
+    };
+
+    Mutex::Mutex(RecursionMode mode) : m_recursionMode(mode)
+    {
+        if(m_recursionMode == Recursive)
+        {
+            pthread_mutexattr_t mutexattr;
+            pthread_mutexattr_init(&mutexattr);
+            pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
+            pthread_mutex_init(&m_mutex, &mutexattr);
+            pthread_mutexattr_destroy(&mutexattr);
+        }
+        else
+        {
+            pthread_mutex_init(&m_mutex, NULL);
+        }
+    }
+
+    Mutex::~Mutex()
+    {
+        pthread_mutex_destroy(&m_mutex);
+    }
+
+    void Mutex::lock()
+    {
+        pthread_mutex_lock(&m_mutex);
+    }
+
+    void Mutex::unlock()
+    {
+        pthread_mutex_unlock(&m_mutex);
+    }
+
+    bool Mutex::isRecursive() const
+    {
+        return (m_recursionMode == Recursive);
+    }
 #endif
-}
 
-void Mutex::lock()
-{
-#if (defined(_WIN32) || defined(_WIN64))
-    WaitForSingleObject(m_mutex, INFINITE); 
-#else
-    pthread_mutex_lock(&m_mutex);
-#endif
-}
-
-void Mutex::unlock()
-{
-#if (defined(_WIN32) || defined(_WIN64))
-    ReleaseMutex(m_mutex);
-#else
-    pthread_mutex_unlock(&m_mutex);
-#endif
-}
-
-bool Mutex::tryLock()
-{
-    return (0 == pthread_mutex_trylock(&m_mutex));
-}
-
-bool Mutex::isRecursive() const
-{
-    return (m_recursionMode == Recursive);
-}
 
 class LockGuard
 {
