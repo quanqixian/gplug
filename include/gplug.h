@@ -30,7 +30,7 @@ enum GPlugErrorCode
     GPLUG_E_FileNotExist,       /* 插件库文件不存在。                                                                          */
     GPLUG_E_FkeyNotExist,       /* 插件不存在（插件功能标识不存在）。                                                          */
     GPLUG_E_IkeyNotExist,       /* 插件功能接口集不存在（插件功能接口集标识不存在）。                                          */
-    GPLUG_E_InvalidPlugin,      /* 无效的插件（未按规则导出 Hplugin_GetPluginInterface 接口，或与插件管理器交互的接口集无效）。*/
+    GPLUG_E_InvalidPlugin,      /* 无效的插件（未按规则导出 Hplugin_GetPluginInterface 接口，或与插件管理器交互的接口集无效    */
     GPLUG_E_LoadDsoFailed,      /* 加载插件库失败。                                                                            */
     GPLUG_E_UnloadDsoFailed,    /* 卸载插件库失败。                                                                            */
     GPLUG_E_OutOfMemory,        /* 申请内存失败。                                                                              */

@@ -2,6 +2,7 @@
 #define _SYSTEM_WRAPPER_H_
 
 #include <string>
+#include <exception>
 
 #if (defined(_WIN32) || defined(_WIN64))
     #include <io.h>
@@ -93,6 +94,7 @@ private:
 
 class DLWrapper
 {
+public:
 #if (defined(_WIN32) || defined(_WIN64))
     typedef HMODULE DLHandle;  
 #else
@@ -104,7 +106,7 @@ public:
     {
         DLHandle handler = NULL;
 #if (defined(_WIN32) || defined(_WIN64))
-        handler = LoadLibrary(path);
+        handler = LoadLibrary((LPCWSTR)path);
 #else
         handler = dlopen(path, RTLD_LAZY);
 #endif
@@ -128,6 +130,16 @@ public:
         return dlclose(handler);
 #endif
     }
+	static std::string getError()
+	{
+#if (defined(_WIN32) || defined(_WIN64))
+		char buf[128] = {0};
+		_snprintf_s(buf, sizeof(buf),"last error code:%ld", GetLastError());
+		return buf;
+#else
+		return dlerror();
+#endif
+	}
 };
 
 #if (defined(_WIN32) || defined(_WIN64))
@@ -171,7 +183,7 @@ public:
         switch(ret)
         {
         case WAIT_FAILED:
-            throw std::runtime_error;
+            throw std::runtime_error("WaitForSingleObject error.");
             break;
         default:
             break;
@@ -243,7 +255,7 @@ public:
 class LockGuard
 {
 public:
-    inline explicit LockGuard(Mutex * m) : val(nullptr)
+    inline explicit LockGuard(Mutex * m) : val(NULL)
     {
         if(m)
         {

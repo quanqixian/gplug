@@ -125,13 +125,13 @@ static int loadPlugins()
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
         if(NULL == p.dlHandler)
         {
-            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
+            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym((DLWrapper::DLHandle)p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
-            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
+            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUG_E_InvalidPlugin;
         }
 
@@ -194,7 +194,7 @@ void GPLUG_API GPLUG_Uninit()
                 p.pluginInterface()->Uninit();
             }
 
-            DLWrapper::close(p.dlHandler);
+            DLWrapper::close((DLWrapper::DLHandle)p.dlHandler);
             p.dlHandler = NULL;
         }
     }
@@ -219,13 +219,13 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
         if(NULL == p.dlHandler)
         {
-            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), dlerror());
+            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym((DLWrapper::DLHandle)p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
-            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), dlerror());
+            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUG_E_InvalidPlugin;
         }
 
