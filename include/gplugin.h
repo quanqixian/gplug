@@ -34,60 +34,60 @@ typedef void* GPluginHandle;        // 插件实例句柄;
  */
 
 /**
- *  @brief 初始化插件;
- *  @param void
- *  @return 成功返回0，否则返回其他值;
- *  @note 插件管理器可以确保不会重复调用该接口;
+ * @brief 初始化插件;
+ * @param void
+ * @return 成功返回0，否则返回其他值;
+ * @note 插件管理器可以确保不会重复调用该接口;
  */
 typedef int (GPLUGIN_API * GPlugin_Init)();
 
 /**
- *  @brief 反初始化插件;
- *  @param void
- *  @return 成功返回0，否则返回其他值;
- *  @note 插件管理器可以确保不会重复调用该接口;
+ * @brief 反初始化插件;
+ * @param void
+ * @return 成功返回0，否则返回其他值;
+ * @note 插件管理器可以确保不会重复调用该接口;
  */
 typedef int (GPLUGIN_API * GPlugin_Uninit)();
 
 /**
- *  @brief 创建插件实例;
- *  @param instance [out] 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE;
- *  @return 成功返回0，否则返回其他值;
- *  @note 插件实现需保证该接口线程安全;
+ * @brief 创建插件实例;
+ * @param instance [out] 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE;
+ * @return 成功返回0，否则返回其他值;
+ * @note 插件实现需保证该接口线程安全;
  */
 typedef int (GPLUGIN_API * GPlugin_CreateInstance)(GPluginHandle* instance);
 
 /**
- *  @brief 销毁插件实例;
- *  @param instance [in] 插件实例句柄;
- *  @return 成功返回0，否则返回其他值;
- *  @note 插件实现需保证该接口线程安全;
+ * @brief 销毁插件实例;
+ * @param instance [in] 插件实例句柄;
+ * @return 成功返回0，否则返回其他值;
+ * @note 插件实现需保证该接口线程安全;
  */
 typedef int (GPLUGIN_API * GPlugin_DestroyInstance)(GPluginHandle instance);
 
 /**
- *  @brief 获取插件功能接口集;
- *  @param instance [in] 插件实例句柄;
- *  @param ikey [in] 插件功能接口集标识;
- *  @param plugin_interface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE;
- *  @return 成功返回0，否则返回其他值（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）;
- *  @note 插件实现需保证该接口线程安全;
+ * @brief 获取插件功能接口集;
+ * @param instance [in] 插件实例句柄;
+ * @param ikey [in] 插件功能接口集标识;
+ * @param plugin_interface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE;
+ * @return 成功返回0，否则返回其他值（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）;
+ * @note 插件实现需保证该接口线程安全;
  */
 typedef int (GPLUGIN_API * GPlugin_QueryInterface)(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface);
 
 /**
- *  @brief 获取插件支持的功能接口集标识列表;
- *  @param void
- *  @return 返回插件支持的功能接口集标识列表，列表的最后一个字符串应始终为空;
- *  @note 插件实现需保证该接口线程安全;
+ * @brief 获取插件支持的功能接口集标识列表;
+ * @param void
+ * @return 返回插件支持的功能接口集标识列表，列表的最后一个字符串应始终为空;
+ * @note 插件实现需保证该接口线程安全;
  */
 typedef const char** (GPLUGIN_API * GPlugin_GetAllInterfaceIkeys)();
 
 /**
- *  @brief 获取插件库文件版本字串;
- *  @param void
- *  @return 返回插件库文件版本字串;
- *  @note 插件实现需保证该接口线程安全;
+ * @brief 获取插件库文件版本字串;
+ * @param void
+ * @return 返回插件库文件版本字串;
+ * @note 插件实现需保证该接口线程安全;
  */
 typedef const char* (GPLUGIN_API * GPlugin_GetFileVersion)();
 
@@ -96,7 +96,7 @@ typedef const char* (GPLUGIN_API * GPlugin_GetFileVersion)();
 
 
 /**
- *  @brief 插件与插件管理器交互的接口集合;
+ * @brief 插件与插件管理器交互的接口集合;
  */
 struct GPluginExportInterface
 {
@@ -134,9 +134,9 @@ struct GPluginExportInterface
 };
 
 /** @fn typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)()
- *  @brief 获取插件与插件管理器交互的接口集合;
- *  @param void
- *  @return 返回插件与插件管理器交互的接口集合;
+ * @brief 获取插件与插件管理器交互的接口集合;
+ * @param void
+ * @return 返回插件与插件管理器交互的接口集合;
  */
 typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)();
 
