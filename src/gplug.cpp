@@ -23,8 +23,8 @@ struct Plugin
     }
 };
 
-std::map<std::string, Plugin> m_pluginMap;
-std::map<GPluginHandle, Plugin*> m_instanceMap;
+std::map<std::string, Plugin> m_pluginMap;      /* first: file key, second: plugin info */
+std::map<GPluginHandle, Plugin*> m_instanceMap; /*  */
 SysWrapper::Mutex m_mutex;
 
 static int loadConfigFile()

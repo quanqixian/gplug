@@ -49,67 +49,67 @@ enum GPlugErrorCode
  */
 
 /**
- *  @brief 初始化插件管理器。
- *  @return 成功返回0，失败返回其他值。
+ * @brief      初始化插件管理器。
+ * @return     成功返回0，失败返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_Init();
 
 /**
- *  @brief 反初始化插件管理器。
- *  @return void
+ * @brief 反初始化插件管理器。
+ * @return void
  */
 GPLUG_EXTERN void GPLUG_API GPLUG_Uninit();
 
 /**
- *  @brief 创建插件实例。
- *  @param fkey [in] 插件标识。
- *  @param instance [out] 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
- *  @param plugin_error [out] 创建失败时，插件返回的错误码。
- *  @return 成功返回0，否则返回其他值。
+ * @brief 创建插件实例。
+ * @param fkey [in] 插件标识。
+ * @param instance [out] 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
+ * @param plugin_error [out] 创建失败时，插件返回的错误码。
+ * @return 成功返回0，否则返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error);
 
 /**
- *  @brief 销毁插件实例。
- *  @param instance [in] 插件实例句柄。
- *  @param plugin_error [out] 销毁失败时，插件返回的错误码。
- *  @return 成功返回0，否则返回其他值。
+ * @brief 销毁插件实例。
+ * @param instance [in] 插件实例句柄。
+ * @param plugin_error [out] 销毁失败时，插件返回的错误码。
+ * @return 成功返回0，否则返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error);
 
 /**
- *  @brief 获取插件功能接口集。
- *  @param instance [in] 插件实例句柄。
- *  @param ikey [in] 插件功能接口集标识。
- *  @param plugin_interface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE。
- *  @param plugin_error [out] 获取失败时，插件返回的错误码（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）。
- *  @return 成功返回0，否则返回其他值。
+ * @brief 获取插件功能接口集。
+ * @param instance [in] 插件实例句柄。
+ * @param ikey [in] 插件功能接口集标识。
+ * @param plugin_interface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE。
+ * @param plugin_error [out] 获取失败时，插件返回的错误码（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）。
+ * @return 成功返回0，否则返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error);
 
 /**
- *  @brief 查询插件配置属性。
- *  @param fkey [in] 插件功能接口集标识。
- *  @param attribute_name [in] 配置属性名称。
- *  @param attribute_value [out] 配置属性值, 若为NULL，则接口只在buf_len中返回实际长度。
- *  @param buf_len [in/out] 配置属性缓冲区长度/实际value字符串长度。
- *  @return 成功返回0，否则返回其他值。
+ * @brief 查询插件配置属性。
+ * @param fkey [in] 插件功能接口集标识。
+ * @param attribute_name [in] 配置属性名称。
+ * @param attribute_value [out] 配置属性值, 若为NULL，则接口只在buf_len中返回实际长度。
+ * @param buf_len [in/out] 配置属性缓冲区长度/实际value字符串长度。
+ * @return 成功返回0，否则返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
 
 /**
- *  @brief 查询所有插件，仅包含hplugin.xml中配置的fkeys列表，不包含插件内部生成的映射fkeys。
- *  @param fkeys [out] 插件集。
- *  @param fkeysCout [out] 插件数量。
- *  @return 成功返回0，否则返回其他值。
+ * @brief 查询所有插件，仅包含hplugin.xml中配置的fkeys列表，不包含插件内部生成的映射fkeys。
+ * @param fkeys [out] 插件集。
+ * @param fkeysCout [out] 插件数量。
+ * @return 成功返回0，否则返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout);
 
 /**
- *  @brief 释放查询所有插件内存。
- *  @param fkeys [in] 插件集。
- *  @param fkeysCout [in] 插件数量。
- *  @return 成功返回0，否则返回其他值。
+ * @brief 释放查询所有插件内存。
+ * @param fkeys [in] 插件集。
+ * @param fkeysCout [in] 插件数量。
+ * @return 成功返回0，否则返回其他值。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout);
 
