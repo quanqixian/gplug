@@ -28,6 +28,7 @@ gplug documentation is generated using  [Doxygen](http://www.doxygen.org/).
 
 # 4.示例
 
+Check out examples [here](./example/README.md)
 
 
 # 5.编译
