@@ -12,9 +12,29 @@ gplug is designed to separate the plugin interface and user function interface.
 
 插件管理器采用配置文件的方式对插件进行统一管理，配置文件中标有插件的ID和是否延迟加载等参数信息，而插件的实现必须要符合插件管理器的要求，插件管理器根据配置文件对插件进行加载管理，并通过规范规定各个插件必须实现的接口进行初始化、反初始化、获取功能接口集等操作。
 
-# 2.Development steps
+# 2.接口
+
+gplug documentation is generated using  [Doxygen](http://www.doxygen.org/).
+
+接口分为两部分，分为插件管理器接口和插件规范接口。
+
+应用程序通过插件管理器接口与插件管理器进行管理插件、获取插件信息等交互，插件管理器通过插件规范接口与插件进行管理插件等交互。在应用程序获取到插件功能接口集之后，应用程序将直接与插件进行交互。
+
+# 3.Development steps
 
 插件的开发和使用流程如下：
 
 ![process](./docs/pic/process.png)
+
+# 4.示例
+
+
+
+# 5.编译
+
+
+
+# 6.局限性
+
+gplug目前无法解决不同的插件库所依赖的库的版本冲突问题。
 
