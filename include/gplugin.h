@@ -129,20 +129,6 @@ struct GPluginExportInterface
     {
     }
 
-    /**
-     *  @brief 重置所有接口为空
-     *  @return void
-     */
-    void Reset()
-    {
-        Init = NULL;
-        Uninit = NULL;
-        CreateInstance = NULL;
-        DestroyInstance = NULL;
-        QueryInterface = NULL;
-        GetAllInterfaceIkeys = NULL;
-        GetFileVersion = NULL;
-    }
 #endif // #if defined(__cplusplus)
 
 };
