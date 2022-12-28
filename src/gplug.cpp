@@ -15,7 +15,7 @@ struct Plugin
     std::string fkey;
     std::string file;
     std::string filePath;
-    void *dlHandler; /* 打开动态库后获得的动态库句柄 */
+    DLWrapper::DLHandle dlHandler; /* 打开动态库后获得的动态库句柄 */
     GPlugin_GetPluginInterface pluginInterface;
     bool delayload;
     Plugin() : dlHandler(NULL), pluginInterface(NULL), delayload(false)
@@ -128,7 +128,7 @@ static int loadPlugins()
             GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym((DLWrapper::DLHandle)p.dlHandler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
@@ -194,7 +194,7 @@ void GPLUG_API GPLUG_Uninit()
                 p.pluginInterface()->Uninit();
             }
 
-            DLWrapper::close((DLWrapper::DLHandle)p.dlHandler);
+            DLWrapper::close(p.dlHandler);
             p.dlHandler = NULL;
         }
     }
@@ -222,7 +222,7 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
             GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUG_E_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym((DLWrapper::DLHandle)p.dlHandler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
