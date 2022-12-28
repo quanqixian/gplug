@@ -45,21 +45,6 @@ enum GPlugErrorCode
 };
 
 /**
- *  @brief 插件功能标识集合
- */
-struct GPLUG_FKEYS
-{
-    const char** fkeys; /* 插件功能标识数组 */
-    int count;          /* 插件功能标识数组长度 */
-
-    GPLUG_FKEYS()
-        : fkeys(NULL), count(0)
-    {
-    }
-};
-
-
-/**
  * 插件管理器基本接口
  */
 

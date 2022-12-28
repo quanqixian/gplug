@@ -20,7 +20,6 @@
  * 插件类型、常量定义
  */
 typedef void* GPluginHandle;        // 插件实例句柄;
-typedef char PLUGIN_FKEY[256];      // 插件fkey类型;
 
 /**
  * 接口函数返回值定义
