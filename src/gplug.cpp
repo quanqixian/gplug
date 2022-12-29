@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <stdlib.h>
 #include <string.h>
 
@@ -67,6 +68,7 @@ static int loadConfigFile()
         return GPLUG_E_InvalidConfigFile;
     }
 
+    std::set<std::string> fileSet;
     /* 上锁 */
     LockGuard guard(&m_mutex);
 
@@ -74,13 +76,15 @@ static int loadConfigFile()
     plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin");
     do 
     {
+        /* 读取配置参数 */
         Plugin p;
         p.fkey = plugin->Attribute("fkey");
         plugin->QueryBoolAttribute("delayload", &p.delayload);
     
         std::string file = plugin->Attribute("file");
         p.file = file;
-        /* 以配置文件所在目录为基本目录 */
+
+        /* 以配置文件所在目录为基本目录，拼接文件绝对路径 */
         file = "gplugin/" + file;
         std::string fullpath;
         ret = PathWrapper::splicePath(file, fullPath);
@@ -91,13 +95,21 @@ static int loadConfigFile()
         }
         p.filePath = fullPath;
 
+        /* 检查fkey是否出现重复 */
         if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
         {
             GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
             return GPLUG_E_InvalidConfigFile;
         }
-        m_pluginMap[p.fkey] = p;
 
+        /* 检查插件文件是否重复 */
+        if(fileSet.find(p.file) != fileSet.end())
+        {
+            GPLUG_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
+            return GPLUG_E_InvalidConfigFile;
+        }
+
+        m_pluginMap[p.fkey] = p;
         GPLUG_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
         
         plugin = plugin->NextSiblingElement("plugin");
@@ -230,19 +242,23 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
         }
 
         /* 插件初始化 */
-        int pRet = p.pluginInterface()->Init();
-        if(0 != pRet)
+        *plugin_error = p.pluginInterface()->Init();
+        if(0 != *plugin_error)
         {
-            GPLUG_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            GPLUG_LOG_ERROR(*plugin_error, "Unit plugin failed, plugin:%s", p.filePath.c_str());
             return GPLUG_E_InitPluginFailed;
         }
         GPLUG_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
     }
 
-    p.pluginInterface()->CreateInstance(instance);
+    *plugin_error = p.pluginInterface()->CreateInstance(instance);
+    if(0 != *plugin_error)
+    {
+        GPLUG_LOG_ERROR(*plugin_error, "CreateInstance failed, plugin:%s", p.filePath.c_str());
+        return GPLUG_ERR;
+    }
 
     m_instanceMap[*instance] = &p;
-    *plugin_error = 0;
 
     return GPLUG_OK;
 }
@@ -263,10 +279,16 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
     }
     
     Plugin * p = iter->second;
-    p->pluginInterface()->DestroyInstance(instance);
+
+    *plugin_error = p->pluginInterface()->DestroyInstance(instance);
+    if(0 != *plugin_error)
+    {
+        GPLUG_LOG_ERROR(*plugin_error, "DestroyInstance failed, plugin:%s", p->filePath.c_str());
+        return GPLUG_ERR;
+    }
+
     m_instanceMap.erase(iter);
 
-    *plugin_error = 0;
     return GPLUG_OK;
 }
 
@@ -286,8 +308,12 @@ int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPl
     }
     
     Plugin * p = iter->second;
-    p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
-    *plugin_error = 0;
+    *plugin_error = p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
+    if(0 != *plugin_error)
+    {
+        GPLUG_LOG_ERROR(*plugin_error, "QueryInterface failed, plugin:%s", p->filePath.c_str());
+        return GPLUG_ERR;
+    }
 
     return GPLUG_OK;
 }
