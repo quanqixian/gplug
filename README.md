@@ -2,7 +2,6 @@
 
 [![badge](https://img.shields.io/badge/license-Zlib-blue)](https://github.com/quanqixian/EVHttpServer/blob/master/LICENSE)
 [![badge](https://img.shields.io/badge/document-doxygen-brightgreen)](./doc)
-
 [![badge](https://img.shields.io/badge/platform-windows%20%7C%20linux-green)](./README.md)
 
 gplug 是一个通用插件管理库。
@@ -33,17 +32,15 @@ gplug documentation is generated using  [Doxygen](http://www.doxygen.org/).
 
 接口分为两部分，分为插件管理器接口和插件规范接口。
 
-应用程序通过插件管理器接口初始化各插件，创建插件实例。在应用程序获取到插件功能接口集之后，应用程序将直接与插件进行交互。
-
-每一个插件都应该实现插件规范接口，这样插件管理器才能按照统一的接口调用插件。插件规范接口和插件功能接口是分离开的。
-
-
+插件要实现插件接口，应用程序调用插件管理器接口实现插件管理。
 
 # 3.Development steps
 
 插件的开发和使用流程如下：
 
 ![process](./docs/pic/process.png)
+
+这里是按照流程开发开发插件的一个示例。
 
 # 4.示例
 
