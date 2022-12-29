@@ -3,6 +3,8 @@
 [![badge](https://img.shields.io/badge/license-Zlib-blue)](https://github.com/quanqixian/EVHttpServer/blob/master/LICENSE)
 [![badge](https://img.shields.io/badge/document-doxygen-brightgreen)](./doc)
 
+[![badge](https://img.shields.io/badge/platform-windows%20%7C%20linux-green)](./README.md)
+
 gplug 是一个通用插件管理库。
 
 gplug 用于统一管理应用程序中的插件，负责加载、初始化、反初始化和卸载各个插件，并支持在运行时添加和删除插件库。
