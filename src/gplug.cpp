@@ -214,7 +214,7 @@ void GPLUG_API GPLUG_Uninit()
     m_pluginMap.clear();
 }
 
-int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error)
+int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error)
 {
     LockGuard guard(&m_mutex);
 
@@ -252,14 +252,14 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, in
         GPLUG_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
     }
 
-    *plugin_error = p.pluginInterface()->CreateInstance(instance);
+    *plugin_error = p.pluginInterface()->CreateInstance(pInstance);
     if(0 != *plugin_error)
     {
         GPLUG_LOG_ERROR(*plugin_error, "CreateInstance failed, plugin:%s", p.filePath.c_str());
         return GPLUG_ERR;
     }
 
-    m_instanceMap[*instance] = &p;
+    m_instanceMap[*pInstance] = &p;
 
     return GPLUG_OK;
 }

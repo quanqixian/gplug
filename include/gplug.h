@@ -62,18 +62,18 @@ GPLUG_EXTERN void GPLUG_API GPLUG_Uninit();
 
 /**
  * @brief      创建插件实例。
- * @param[in]  fkey : 插件标识
- * @param[out] instance : 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
+ * @param[in]  fkey : 插件文件标识
+ * @param[out] pInstance : 创建成功则用于返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
  * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
  * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
-GPLUG_EXTERN int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error);
+GPLUG_EXTERN int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error);
 
 /**
- * @brief 销毁插件实例。
- * @param instance [in] 插件实例句柄。
- * @param plugin_error [out] 销毁失败时，插件返回的错误码。
- * @return 成功返回0，否则返回其他值。
+ * @brief      销毁插件实例。
+ * @param[in]  instance : 插件实例句柄。
+ * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
+ * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error);
 
@@ -88,8 +88,8 @@ GPLUG_EXTERN int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* pl
 GPLUG_EXTERN int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error);
 
 /**
- * @brief 查询插件配置属性。
- * @param fkey [in] 插件功能接口集标识。
+ * @brief      查询插件配置属性。
+ * @param[in]  fkey : 插件文件标识
  * @param attribute_name [in] 配置属性名称。
  * @param attribute_value [out] 配置属性值, 若为NULL，则接口只在buf_len中返回实际长度。
  * @param buf_len [in/out] 配置属性缓冲区长度/实际value字符串长度。
