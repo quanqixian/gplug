@@ -1,16 +1,29 @@
-# 1.Introduction
+# 1.概述
 
-gplug is a **general plugin management library**.
+[![badge](https://img.shields.io/badge/license-Zlib-blue)](https://github.com/quanqixian/EVHttpServer/blob/master/LICENSE)
+[![badge](https://img.shields.io/badge/document-doxygen-brightgreen)](./doc)
 
-gplug is used for unified management of plugins in the application, responsible for loading, initializing, de-initializing, and unloading each plugin, and supports adding and deleting plugin libraries at runtime.
+gplug 是一个通用插件管理库。
 
-gplug is designed to separate the plugin interface and user function interface.
+gplug 用于统一管理应用程序中的插件，负责加载、初始化、反初始化和卸载各个插件，并支持在运行时添加和删除插件库。
+
+gplug 被设计成将插件接口和用户功能接口分开。插件管理器通过插件规范接口获取插件功能接口，然后就可以直接与插件进行交互。
 
 ![plugin](./docs/pic/plugin.png)
 
-插件管理器规定每个插件都有唯一的ID进行标示，应用程序根据ID通过插件管理器对特定的插件进行初始化，获取插件功能接口函数的指针，从而动态调用不同插件的接口函数。
+在gplug中主要有三部分：插件、插件管理器、插件配置文件。
 
-插件管理器采用配置文件的方式对插件进行统一管理，配置文件中标有插件的ID和是否延迟加载等参数信息，而插件的实现必须要符合插件管理器的要求，插件管理器根据配置文件对插件进行加载管理，并通过规范规定各个插件必须实现的接口进行初始化、反初始化、获取功能接口集等操作。
+## 插件
+
+每个插件使用唯一的ID（file key）进行标识，插件必须实现符合插件规范接口。
+
+## 插件配置文件
+
+插件管理器采用配置文件的方式对插件进行统一管理，配置文件中有插件的ID和是否延迟加载等参数。
+
+## 插件管理器
+
+插件管理器根据文件ID（FileKey）对相应的插件进行初始化，根据功能ID(InterfaceKey)获取插件功能接口函数的指针并调用不同插件的功能接口等。
 
 # 2.接口
 
@@ -20,7 +33,9 @@ gplug documentation is generated using  [Doxygen](http://www.doxygen.org/).
 
 应用程序通过插件管理器接口初始化各插件，创建插件实例。在应用程序获取到插件功能接口集之后，应用程序将直接与插件进行交互。
 
-每一个插件都应该实现插件规范接口，这样插件管理器才能按照统一的接口调用插件。插件规范接口和插件功能接口是分离开的。插件管理器通过插件规范接口获取插件功能接口，然后就可以直接与插件进行交互。
+每一个插件都应该实现插件规范接口，这样插件管理器才能按照统一的接口调用插件。插件规范接口和插件功能接口是分离开的。
+
+
 
 # 3.Development steps
 
