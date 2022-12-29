@@ -1,6 +1,6 @@
 # 1.概述
 
-[![badge](https://img.shields.io/badge/license-Zlib-blue)](https://github.com/quanqixian/EVHttpServer/blob/master/LICENSE)
+[![badge](https://img.shields.io/badge/license-Zlib-blue)](./LICENSE.txt)
 [![badge](https://img.shields.io/badge/document-doxygen-brightgreen)](./doc)
 [![badge](https://img.shields.io/badge/platform-windows%20%7C%20linux-green)](./README.md)
 
@@ -40,7 +40,7 @@ gplug documentation is generated using  [Doxygen](http://www.doxygen.org/).
 
 ![process](./docs/pic/process.png)
 
-这里是按照流程开发开发插件的一个示例。
+[这里](./docs/2.开发流程/README.md)是按照流程开发开发插件的一个示例。
 
 # 4.示例
 
