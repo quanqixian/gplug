@@ -108,6 +108,7 @@ static int loadConfigFile()
             GPLUG_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
             return GPLUG_E_InvalidConfigFile;
         }
+		fileSet.insert(p.file);
 
         m_pluginMap[p.fkey] = p;
         GPLUG_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);

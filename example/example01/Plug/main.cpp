@@ -7,7 +7,12 @@ int main(int argc, const char *argv[])
 {
     int ret = 0;
 
-    GPLUG_Init();
+    ret = GPLUG_Init();
+    if(0 != ret)
+    {
+        GPLUG_LOG_ERROR(ret, "GPLUG_Init error");
+        return ret;
+    }
 
     char** fkeys = NULL;
     unsigned int fkeysCout = 0;
@@ -60,18 +65,18 @@ int main(int argc, const char *argv[])
             GPLUG_LOG_INFO("fkey=%s, weight=%s", fkeys[i], p->weight().c_str());
         }
 
-		/* 查询插件属性 */
-		{
-			char attrBuf[256] = {0};
-			unsigned int attrLen = sizeof(attrBuf);
-			ret = GPLUG_QueryConfigAttribute(fkeys[i], "file", attrBuf, &attrLen);
-			if(0 != ret)
-			{
-				GPLUG_LOG_ERROR(ret, "GPLUG_QueryConfigAttribute error");
-				return ret;
-			}
-			GPLUG_LOG_INFO("file=%s", attrBuf);
-		}
+        /* 查询插件属性 */
+        {
+            char attrBuf[256] = {0};
+            unsigned int attrLen = sizeof(attrBuf);
+            ret = GPLUG_QueryConfigAttribute(fkeys[i], "file", attrBuf, &attrLen);
+            if(0 != ret)
+            {
+                GPLUG_LOG_ERROR(ret, "GPLUG_QueryConfigAttribute error");
+                return ret;
+            }
+            GPLUG_LOG_INFO("file=%s", attrBuf);
+        }
 
         ret = GPLUG_DestroyInstance(instance, &errCode);
         if(0 != ret)
@@ -81,8 +86,13 @@ int main(int argc, const char *argv[])
         }
     }
 
-    GPLUG_ReleaseAllFkeys(fkeys, fkeysCout);
+    ret = GPLUG_ReleaseAllFkeys(fkeys, fkeysCout);
+    if(0 != ret)
+    {
+        GPLUG_LOG_ERROR(ret, "GPLUG_ReleaseAllFkeys error");
+    }
 
     GPLUG_Uninit();
+
     return 0;
 }
