@@ -50,22 +50,22 @@ enum GPlugErrorCode
 
 /**
  * @brief      初始化插件管理器。
- * @return     成功返回0，失败返回其他值。
+ * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_Init();
 
 /**
- * @brief 反初始化插件管理器。
- * @return void
+ * @brief      反初始化插件管理器。
+ * @return     void
  */
 GPLUG_EXTERN void GPLUG_API GPLUG_Uninit();
 
 /**
- * @brief 创建插件实例。
- * @param fkey [in] 插件标识。
- * @param instance [out] 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
- * @param plugin_error [out] 创建失败时，插件返回的错误码。
- * @return 成功返回0，否则返回其他值。
+ * @brief      创建插件实例。
+ * @param[in]  fkey : 插件标识
+ * @param[out] instance : 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
+ * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
+ * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
 GPLUG_EXTERN int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* instance, int* plugin_error);
 
