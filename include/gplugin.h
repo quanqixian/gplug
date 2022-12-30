@@ -4,10 +4,18 @@
 #include <stdio.h>
 
 #if (defined(_WIN32) || defined(_WIN64))
-    #define GPLUGIN_EXTERN extern "C" __declspec(dllexport)
+    #ifdef __cplusplus
+        #define GPLUGIN_EXTERN extern "C" __declspec(dllexport)
+    #else
+        #define GPLUGIN_EXTERN __declspec(dllexport)
+    #endif
     #define GPLUGIN_API __stdcall
 #elif defined(__linux__)
-    #define GPLUGIN_EXTERN extern "C"
+    #ifdef __cplusplus
+        #define GPLUGIN_EXTERN extern "C"
+    #else
+        #define GPLUGIN_EXTERN
+    #endif
     #define GPLUGIN_API
 #else
     #define GPLUGIN_EXTERN
@@ -15,100 +23,99 @@
 #endif
 
 
-
 /**
- * ²å¼şÀàĞÍ¡¢³£Á¿¶¨Òå
+ * æ’ä»¶ç±»å‹ã€å¸¸é‡å®šä¹‰
  */
-typedef void* GPluginHandle;        // ²å¼şÊµÀı¾ä±ú;
+typedef void* GPluginHandle;        // æ’ä»¶å®ä¾‹å¥æŸ„;
 
 /**
- * ½Ó¿Úº¯Êı·µ»ØÖµ¶¨Òå
+ * æ¥å£å‡½æ•°è¿”å›å€¼å®šä¹‰
  */
-#define GPLUGIN_OK             (0)                   /* ³É¹¦;           */
-#define GPLUGIN_ERR            (-1)                  /* Ê§°Ü;           */
-#define GPLUGIN_NOTSUPPORT     (-2)                  /* ²»Ö§³Ö;         */
-#define GPLUGIN_INVALID_HANDLE NULL                  /* ²å¼ş¾ä±úÎŞĞ§Öµ; */
+#define GPLUGIN_OK             (0)                   /* æˆåŠŸ;           */
+#define GPLUGIN_ERR            (-1)                  /* å¤±è´¥;           */
+#define GPLUGIN_NOTSUPPORT     (-2)                  /* ä¸æ”¯æŒ;         */
+#define GPLUGIN_INVALID_HANDLE NULL                  /* æ’ä»¶å¥æŸ„æ— æ•ˆå€¼; */
 
 /**
- * ²å¼ş±ØĞë¾ß±¸µÄÓë²å¼ş¹ÜÀíÆ÷½»»¥µÄ½Ó¿Ú
+ * æ’ä»¶å¿…é¡»å…·å¤‡çš„ä¸æ’ä»¶ç®¡ç†å™¨äº¤äº’çš„æ¥å£
  */
 
 /**
- * @brief ³õÊ¼»¯²å¼ş;
+ * @brief åˆå§‹åŒ–æ’ä»¶;
  * @param void
- * @return ³É¹¦·µ»Ø0£¬·ñÔò·µ»ØÆäËûÖµ;
- * @note ²å¼ş¹ÜÀíÆ÷¿ÉÒÔÈ·±£²»»áÖØ¸´µ÷ÓÃ¸Ã½Ó¿Ú;
+ * @return æˆåŠŸè¿”å›0ï¼Œå¦åˆ™è¿”å›å…¶ä»–å€¼;
+ * @note æ’ä»¶ç®¡ç†å™¨å¯ä»¥ç¡®ä¿ä¸ä¼šé‡å¤è°ƒç”¨è¯¥æ¥å£;
  */
 typedef int (GPLUGIN_API * GPlugin_Init)();
 
 /**
- * @brief ·´³õÊ¼»¯²å¼ş;
+ * @brief ååˆå§‹åŒ–æ’ä»¶;
  * @param void
- * @return ³É¹¦·µ»Ø0£¬·ñÔò·µ»ØÆäËûÖµ;
- * @note ²å¼ş¹ÜÀíÆ÷¿ÉÒÔÈ·±£²»»áÖØ¸´µ÷ÓÃ¸Ã½Ó¿Ú;
+ * @return æˆåŠŸè¿”å›0ï¼Œå¦åˆ™è¿”å›å…¶ä»–å€¼;
+ * @note æ’ä»¶ç®¡ç†å™¨å¯ä»¥ç¡®ä¿ä¸ä¼šé‡å¤è°ƒç”¨è¯¥æ¥å£;
  */
 typedef int (GPLUGIN_API * GPlugin_Uninit)();
 
 /**
- * @brief ´´½¨²å¼şÊµÀı;
- * @param instance [out] ´´½¨³É¹¦Ôò·µ»Ø²å¼şÊµÀı¾ä±ú£¬·ñÔò·µ»ØHPLUGIN_INVALID_HANDLE;
- * @return ³É¹¦·µ»Ø0£¬·ñÔò·µ»ØÆäËûÖµ;
- * @note ²å¼şÊµÏÖĞè±£Ö¤¸Ã½Ó¿ÚÏß³Ì°²È«;
+ * @brief åˆ›å»ºæ’ä»¶å®ä¾‹;
+ * @param instance [out] åˆ›å»ºæˆåŠŸåˆ™è¿”å›æ’ä»¶å®ä¾‹å¥æŸ„ï¼Œå¦åˆ™è¿”å›HPLUGIN_INVALID_HANDLE;
+ * @return æˆåŠŸè¿”å›0ï¼Œå¦åˆ™è¿”å›å…¶ä»–å€¼;
+ * @note æ’ä»¶å®ç°éœ€ä¿è¯è¯¥æ¥å£çº¿ç¨‹å®‰å…¨;
  */
 typedef int (GPLUGIN_API * GPlugin_CreateInstance)(GPluginHandle* instance);
 
 /**
- * @brief Ïú»Ù²å¼şÊµÀı;
- * @param instance [in] ²å¼şÊµÀı¾ä±ú;
- * @return ³É¹¦·µ»Ø0£¬·ñÔò·µ»ØÆäËûÖµ;
- * @note ²å¼şÊµÏÖĞè±£Ö¤¸Ã½Ó¿ÚÏß³Ì°²È«;
+ * @brief é”€æ¯æ’ä»¶å®ä¾‹;
+ * @param instance [in] æ’ä»¶å®ä¾‹å¥æŸ„;
+ * @return æˆåŠŸè¿”å›0ï¼Œå¦åˆ™è¿”å›å…¶ä»–å€¼;
+ * @note æ’ä»¶å®ç°éœ€ä¿è¯è¯¥æ¥å£çº¿ç¨‹å®‰å…¨;
  */
 typedef int (GPLUGIN_API * GPlugin_DestroyInstance)(GPluginHandle instance);
 
 /**
- * @brief »ñÈ¡²å¼ş¹¦ÄÜ½Ó¿Ú¼¯;
- * @param instance [in] ²å¼şÊµÀı¾ä±ú;
- * @param ikey [in] ²å¼ş¹¦ÄÜ½Ó¿Ú¼¯±êÊ¶;
- * @param plugin_interface [out] Èô²å¼şÊµÀıÊµÏÖÁËÓë²å¼ş¹¦ÄÜ½Ó¿Ú¼¯±êÊ¶¶ÔÓ¦µÄ½Ó¿Ú¼¯£¬Ôò·µ»Ø¸Ã½Ó¿Ú¼¯¾ä±ú£¬·ñÔò·µ»ØHPLUGIN_INVALID_HANDLE;
- * @return ³É¹¦·µ»Ø0£¬·ñÔò·µ»ØÆäËûÖµ£¨ÈôÃ»ÓĞÊµÏÖÓë²å¼ş¹¦ÄÜ½Ó¿Ú¼¯±êÊ¶¶ÔÓ¦µÄ½Ó¿Ú¼¯£¬·µ»ØHPLUGIN_NOTSUPPORT£©;
- * @note ²å¼şÊµÏÖĞè±£Ö¤¸Ã½Ó¿ÚÏß³Ì°²È«;
+ * @brief è·å–æ’ä»¶åŠŸèƒ½æ¥å£é›†;
+ * @param instance [in] æ’ä»¶å®ä¾‹å¥æŸ„;
+ * @param ikey [in] æ’ä»¶åŠŸèƒ½æ¥å£é›†æ ‡è¯†;
+ * @param plugin_interface [out] è‹¥æ’ä»¶å®ä¾‹å®ç°äº†ä¸æ’ä»¶åŠŸèƒ½æ¥å£é›†æ ‡è¯†å¯¹åº”çš„æ¥å£é›†ï¼Œåˆ™è¿”å›è¯¥æ¥å£é›†å¥æŸ„ï¼Œå¦åˆ™è¿”å›HPLUGIN_INVALID_HANDLE;
+ * @return æˆåŠŸè¿”å›0ï¼Œå¦åˆ™è¿”å›å…¶ä»–å€¼ï¼ˆè‹¥æ²¡æœ‰å®ç°ä¸æ’ä»¶åŠŸèƒ½æ¥å£é›†æ ‡è¯†å¯¹åº”çš„æ¥å£é›†ï¼Œè¿”å›HPLUGIN_NOTSUPPORTï¼‰;
+ * @note æ’ä»¶å®ç°éœ€ä¿è¯è¯¥æ¥å£çº¿ç¨‹å®‰å…¨;
  */
 typedef int (GPLUGIN_API * GPlugin_QueryInterface)(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface);
 
 /**
- * @brief »ñÈ¡²å¼şÖ§³ÖµÄ¹¦ÄÜ½Ó¿Ú¼¯±êÊ¶ÁĞ±í;
+ * @brief è·å–æ’ä»¶æ”¯æŒçš„åŠŸèƒ½æ¥å£é›†æ ‡è¯†åˆ—è¡¨;
  * @param void
- * @return ·µ»Ø²å¼şÖ§³ÖµÄ¹¦ÄÜ½Ó¿Ú¼¯±êÊ¶ÁĞ±í£¬ÁĞ±íµÄ×îºóÒ»¸ö×Ö·û´®Ó¦Ê¼ÖÕÎª¿Õ;
- * @note ²å¼şÊµÏÖĞè±£Ö¤¸Ã½Ó¿ÚÏß³Ì°²È«;
+ * @return è¿”å›æ’ä»¶æ”¯æŒçš„åŠŸèƒ½æ¥å£é›†æ ‡è¯†åˆ—è¡¨ï¼Œåˆ—è¡¨çš„æœ€åä¸€ä¸ªå­—ç¬¦ä¸²åº”å§‹ç»ˆä¸ºç©º;
+ * @note æ’ä»¶å®ç°éœ€ä¿è¯è¯¥æ¥å£çº¿ç¨‹å®‰å…¨;
  */
 typedef const char** (GPLUGIN_API * GPlugin_GetAllInterfaceIkeys)();
 
 /**
- * @brief »ñÈ¡²å¼ş¿âÎÄ¼ş°æ±¾×Ö´®;
+ * @brief è·å–æ’ä»¶åº“æ–‡ä»¶ç‰ˆæœ¬å­—ä¸²;
  * @param void
- * @return ·µ»Ø²å¼ş¿âÎÄ¼ş°æ±¾×Ö´®;
- * @note ²å¼şÊµÏÖĞè±£Ö¤¸Ã½Ó¿ÚÏß³Ì°²È«;
+ * @return è¿”å›æ’ä»¶åº“æ–‡ä»¶ç‰ˆæœ¬å­—ä¸²;
+ * @note æ’ä»¶å®ç°éœ€ä¿è¯è¯¥æ¥å£çº¿ç¨‹å®‰å…¨;
  */
 typedef const char* (GPLUGIN_API * GPlugin_GetFileVersion)();
 
 
-//----------- ²å¼ş¿â±ØĞëµ¼³öµÄ½Ó¿Ú; ------------//
+//----------- æ’ä»¶åº“å¿…é¡»å¯¼å‡ºçš„æ¥å£; ------------//
 
 
 /**
- * @brief ²å¼şÓë²å¼ş¹ÜÀíÆ÷½»»¥µÄ½Ó¿Ú¼¯ºÏ;
+ * @brief æ’ä»¶ä¸æ’ä»¶ç®¡ç†å™¨äº¤äº’çš„æ¥å£é›†åˆ;
  */
-struct GPluginExportInterface
+typedef struct GPluginExportInterface
 {
-    GPlugin_Init Init;                                  ///< ³õÊ¼»¯²å¼ş½Ó¿Ú£¬±ØÑ¡½Ó¿Ú;
-    GPlugin_Uninit Uninit;                              ///< ·´³õÊ¼»¯²å¼ş½Ó¿Ú£¬±ØÑ¡½Ó¿Ú;
-    GPlugin_CreateInstance CreateInstance;              ///< ´´½¨²å¼şÊµÀı½Ó¿Ú£¬±ØÑ¡½Ó¿Ú;
-    GPlugin_DestroyInstance DestroyInstance;            ///< Ïú»Ù²å¼şÊµÀı½Ó¿Ú£¬±ØÑ¡½Ó¿Ú;
-    GPlugin_QueryInterface QueryInterface;              ///< »ñÈ¡²å¼ş¹¦ÄÜ½Ó¿Ú¼¯½Ó¿Ú£¬±ØÑ¡½Ó¿Ú;
-    GPlugin_GetAllInterfaceIkeys GetAllInterfaceIkeys;  ///< »ñÈ¡²å¼şÖ§³ÖµÄ¹¦ÄÜ½Ó¿Ú¼¯±êÊ¶ÁĞ±í½Ó¿Ú£¬¿ÉÑ¡½Ó¿Ú;
-    GPlugin_GetFileVersion GetFileVersion;              ///< »ñÈ¡²å¼ş¿âÎÄ¼ş°æ±¾×Ö´®½Ó¿Ú£¬¿ÉÑ¡½Ó¿Ú;
+    GPlugin_Init Init;                                  ///< åˆå§‹åŒ–æ’ä»¶æ¥å£ï¼Œå¿…é€‰æ¥å£;
+    GPlugin_Uninit Uninit;                              ///< ååˆå§‹åŒ–æ’ä»¶æ¥å£ï¼Œå¿…é€‰æ¥å£;
+    GPlugin_CreateInstance CreateInstance;              ///< åˆ›å»ºæ’ä»¶å®ä¾‹æ¥å£ï¼Œå¿…é€‰æ¥å£;
+    GPlugin_DestroyInstance DestroyInstance;            ///< é”€æ¯æ’ä»¶å®ä¾‹æ¥å£ï¼Œå¿…é€‰æ¥å£;
+    GPlugin_QueryInterface QueryInterface;              ///< è·å–æ’ä»¶åŠŸèƒ½æ¥å£é›†æ¥å£ï¼Œå¿…é€‰æ¥å£;
+    GPlugin_GetAllInterfaceIkeys GetAllInterfaceIkeys;  ///< è·å–æ’ä»¶æ”¯æŒçš„åŠŸèƒ½æ¥å£é›†æ ‡è¯†åˆ—è¡¨æ¥å£ï¼Œå¯é€‰æ¥å£;
+    GPlugin_GetFileVersion GetFileVersion;              ///< è·å–æ’ä»¶åº“æ–‡ä»¶ç‰ˆæœ¬å­—ä¸²æ¥å£ï¼Œå¯é€‰æ¥å£;
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
     GPluginExportInterface()
         : Init(NULL), Uninit(NULL), CreateInstance(NULL), DestroyInstance(NULL)
         , QueryInterface(NULL), GetAllInterfaceIkeys(NULL), GetFileVersion(NULL)
@@ -131,17 +138,17 @@ struct GPluginExportInterface
 
 #endif // #if defined(__cplusplus)
 
-};
+}GPluginExportInterface;
 
 /** @fn typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)()
- * @brief »ñÈ¡²å¼şÓë²å¼ş¹ÜÀíÆ÷½»»¥µÄ½Ó¿Ú¼¯ºÏ;
+ * @brief è·å–æ’ä»¶ä¸æ’ä»¶ç®¡ç†å™¨äº¤äº’çš„æ¥å£é›†åˆ;
  * @param void
- * @return ·µ»Ø²å¼şÓë²å¼ş¹ÜÀíÆ÷½»»¥µÄ½Ó¿Ú¼¯ºÏ;
+ * @return è¿”å›æ’ä»¶ä¸æ’ä»¶ç®¡ç†å™¨äº¤äº’çš„æ¥å£é›†åˆ;
  */
 typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)();
 
 
-// µ÷ÓÃ¸Ãºê¿ÉÒÔÉùÃ÷²¢ÊµÏÖ²å¼ş±ØĞëµ¼³öµÄ½Ó¿Ú GPLUGIN_GetPluginInterface;
+// è°ƒç”¨è¯¥å®å¯ä»¥å£°æ˜å¹¶å®ç°æ’ä»¶å¿…é¡»å¯¼å‡ºçš„æ¥å£ GPLUGIN_GetPluginInterface;
 #if defined(__cplusplus)
     #define GPLUGIN_MAKE_EXPORT_INTERFACE(Init, Uninit, CreateInstance, DestroyInstance, QueryInterface, GetAllInterfaceIkeys, GetFileVersion) \
         GPLUGIN_EXTERN const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
