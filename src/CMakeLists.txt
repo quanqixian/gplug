@@ -12,6 +12,8 @@ set(GPLUG_SOURCES
 	tinyxml2.cpp
 )
 
+find_package(Threads REQUIRED)
+
 if(GPLUG_BUILD_SHARED_LIBS)
 	add_library(gplug_shared SHARED ${GPLUG_SOURCES})
 	set_target_properties(gplug_shared PROPERTIES OUTPUT_NAME gplug)
@@ -20,6 +22,14 @@ if(GPLUG_BUILD_SHARED_LIBS)
 	if (UNIX)
 		target_link_libraries(gplug_shared ${CMAKE_DL_LIBS})
     endif()
+
+	if(THREADS_HAVE_PTHREAD_ARG)
+		set_property(TARGET gplug_shared PROPERTY COMPILE_OPTIONS "-pthread")
+		set_property(TARGET gplug_shared PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+	endif()
+	if(CMAKE_THREAD_LIBS_INIT)
+		target_link_libraries(gplug_shared "${CMAKE_THREAD_LIBS_INIT}")
+	endif()
 
 	install(TARGETS gplug_shared)
 endif()
@@ -36,6 +46,14 @@ if(GPLUG_BUILD_STATIC_LIBS)
         set_target_properties(gplug_static PROPERTIES OUTPUT_NAME gplug)
 		target_link_libraries(gplug_static ${CMAKE_DL_LIBS})
     endif()
+
+	if(THREADS_HAVE_PTHREAD_ARG)
+		set_property(TARGET gplug_static PROPERTY COMPILE_OPTIONS "-pthread")
+		set_property(TARGET gplug_static PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+	endif()
+	if(CMAKE_THREAD_LIBS_INIT)
+		target_link_libraries(gplug_static "${CMAKE_THREAD_LIBS_INIT}")
+	endif()
 
 	install(TARGETS gplug_static)
 endif()
