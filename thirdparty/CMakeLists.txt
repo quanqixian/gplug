@@ -4,6 +4,6 @@ cmake_minimum_required(VERSION 3.10)
 project(thirdparty VERSION 1.0)
 
 
-if(GPLUGIN_WITH_TESTS)
+if(GPLUG_WITH_TESTS)
 	add_subdirectory(googletest)
 endif()

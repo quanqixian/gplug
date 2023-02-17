@@ -15,23 +15,23 @@ set(GPLUG_SOURCES
 find_package(Threads REQUIRED)
 
 if(GPLUG_BUILD_SHARED_LIBS)
-	add_library(gplug_shared SHARED ${GPLUG_SOURCES})
-	set_target_properties(gplug_shared PROPERTIES OUTPUT_NAME gplug)
+	add_library(gplug SHARED ${GPLUG_SOURCES})
+	set_target_properties(gplug PROPERTIES OUTPUT_NAME gplug)
 
-	target_include_directories(gplug_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include/)
+	target_include_directories(gplug PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include/)
 	if (UNIX)
-		target_link_libraries(gplug_shared ${CMAKE_DL_LIBS})
+		target_link_libraries(gplug ${CMAKE_DL_LIBS})
     endif()
 
 	if(THREADS_HAVE_PTHREAD_ARG)
-		set_property(TARGET gplug_shared PROPERTY COMPILE_OPTIONS "-pthread")
-		set_property(TARGET gplug_shared PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+		set_property(TARGET gplug PROPERTY COMPILE_OPTIONS "-pthread")
+		set_property(TARGET gplug PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
 	endif()
 	if(CMAKE_THREAD_LIBS_INIT)
-		target_link_libraries(gplug_shared "${CMAKE_THREAD_LIBS_INIT}")
+		target_link_libraries(gplug "${CMAKE_THREAD_LIBS_INIT}")
 	endif()
 
-	install(TARGETS gplug_shared)
+	install(TARGETS gplug)
 endif()
 
 if(GPLUG_BUILD_STATIC_LIBS)
