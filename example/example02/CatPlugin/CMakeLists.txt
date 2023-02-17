@@ -8,15 +8,15 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CATPLUGIN_SOURCES
-	CatPlugin.cpp	
-	Cat.cpp
+	CatPlugin.c	
+	Cat.c
 )
 
-add_library(CatPlugin01 SHARED ${CATPLUGIN_SOURCES})
-set_target_properties(CatPlugin01 PROPERTIES OUTPUT_NAME CatPlugin)
-target_include_directories(CatPlugin01 PUBLIC
+add_library(CatPlugin02 SHARED ${CATPLUGIN_SOURCES})
+set_target_properties(CatPlugin02 PROPERTIES OUTPUT_NAME CatPlugin)
+target_include_directories(CatPlugin02 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../interface/ 
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
 
-install(TARGETS CatPlugin01 DESTINATION bin/example01/CatPlugin)
+install(TARGETS CatPlugin02 DESTINATION bin/example02/CatPlugin)
 
