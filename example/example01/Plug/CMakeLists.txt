@@ -17,3 +17,7 @@ target_include_directories(PluginMgr PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include
 	)
 target_link_libraries(PluginMgr gplug)
+
+install(TARGETS PluginMgr DESTINATION bin/example01)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/gplugin" DESTINATION bin/example01)
+

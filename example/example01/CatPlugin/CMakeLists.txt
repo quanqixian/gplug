@@ -16,3 +16,6 @@ add_library(CatPlugin SHARED ${CATPLUGIN_SOURCES})
 target_include_directories(CatPlugin PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../interface/ 
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
+
+install(TARGETS CatPlugin DESTINATION bin/example01/CatPlugin)
+

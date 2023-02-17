@@ -16,3 +16,5 @@ add_library(DogPlugin SHARED ${DOGPLUGIN_SOURCES})
 target_include_directories(DogPlugin PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../interface/ 
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
+
+install(TARGETS DogPlugin DESTINATION bin/example01/DogPlugin)
