@@ -106,7 +106,7 @@ public:
     {
         DLHandle handler = NULL;
 #if (defined(_WIN32) || defined(_WIN64))
-        handler = LoadLibrary((LPCWSTR)path);
+        handler = LoadLibraryA(path);
 #else
         handler = dlopen(path, RTLD_LAZY);
 #endif
