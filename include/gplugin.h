@@ -1,3 +1,9 @@
+/**
+ * @file gplugin.h
+ * 
+ * plugin
+ */
+
 #ifndef _GPLUGIN_H__
 #define _GPLUGIN_H__
 

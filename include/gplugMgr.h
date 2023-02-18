@@ -1,3 +1,9 @@
+/**
+ * @file gplugMgr.h
+ * 
+ * Plugin Manager
+ */
+
 #ifndef _GPLUGMGR_MANAGER_H__
 #define _GPLUGMGR_MANAGER_H__
 
