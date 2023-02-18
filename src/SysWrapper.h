@@ -36,7 +36,7 @@ public:
         ret = getCurrentWorkDir(workDir);
         if(!ret)
         {
-            GPLUG_LOG_ERROR(-1, "file to getCurrentWorkDir");
+            GPLUGMGR_LOG_ERROR(-1, "file to getCurrentWorkDir");
             return ret;
         }
 
@@ -54,11 +54,11 @@ public:
         ret = isPathExist(fullPath);
         if(!ret)
         {
-            GPLUG_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
+            GPLUGMGR_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
             return ret;
         }
 
-        GPLUG_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
+        GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
 
         return ret;
     }

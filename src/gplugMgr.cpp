@@ -1,4 +1,4 @@
-#include "gplug.h"
+#include "gplugMgr.h"
 #include "tinyxml2.h"
 #include "Debug.h"
 #include "SysWrapper.h"
@@ -38,8 +38,8 @@ static int loadConfigFile()
     ret = PathWrapper::splicePath(basePath, fullPath);
     if(!ret)
     {
-        GPLUG_LOG_ERROR(GPLUG_E_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
-        return GPLUG_E_FileNotExist;
+        GPLUGMGR_LOG_ERROR(GPLUGMGR_E_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
+        return GPLUGMGR_E_FileNotExist;
     }
 
     /* 从文件加载xml */
@@ -47,8 +47,8 @@ static int loadConfigFile()
     int xmlRet = doc.LoadFile(fullPath.c_str());
     if(tinyxml2::XML_SUCCESS != xmlRet)
     {
-        GPLUG_LOG_ERROR(doc.ErrorID(), "Fail to load xml file:%s", fullPath.c_str());
-        return GPLUG_E_InvalidConfigFile;
+        GPLUGMGR_LOG_ERROR(doc.ErrorID(), "Fail to load xml file:%s", fullPath.c_str());
+        return GPLUGMGR_E_InvalidConfigFile;
     }
 
     /* xml内容校验 */
@@ -64,8 +64,8 @@ static int loadConfigFile()
     }
     if(!ret)
     {
-        GPLUG_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
-        return GPLUG_E_InvalidConfigFile;
+        GPLUGMGR_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
+        return GPLUGMGR_E_InvalidConfigFile;
     }
 
     std::set<std::string> fileSet;
@@ -90,33 +90,33 @@ static int loadConfigFile()
         ret = PathWrapper::splicePath(file, fullPath);
         if(!ret)
         {
-            GPLUG_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
-            return GPLUG_E_FileNotExist;
+            GPLUGMGR_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
+            return GPLUGMGR_E_FileNotExist;
         }
         p.filePath = fullPath;
 
         /* 检查fkey是否出现重复 */
         if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
         {
-            GPLUG_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
-            return GPLUG_E_InvalidConfigFile;
+            GPLUGMGR_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
+            return GPLUGMGR_E_InvalidConfigFile;
         }
 
         /* 检查插件文件是否重复 */
         if(fileSet.find(p.file) != fileSet.end())
         {
-            GPLUG_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
-            return GPLUG_E_InvalidConfigFile;
+            GPLUGMGR_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
+            return GPLUGMGR_E_InvalidConfigFile;
         }
 		fileSet.insert(p.file);
 
         m_pluginMap[p.fkey] = p;
-        GPLUG_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
+        GPLUGMGR_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
         
         plugin = plugin->NextSiblingElement("plugin");
     }while(plugin);
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
 static int loadPlugins()
@@ -131,59 +131,59 @@ static int loadPlugins()
     
         if(p.delayload)
         {
-            GPLUG_LOG_INFO("fkey:%s delayload", p.fkey.c_str());
+            GPLUGMGR_LOG_INFO("fkey:%s delayload", p.fkey.c_str());
             continue;
         }
 
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
         if(NULL == p.dlHandler)
         {
-            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUG_E_LoadDsoFailed;
+            GPLUGMGR_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
+            return GPLUGMGR_E_LoadDsoFailed;
         }
         p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
-            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUG_E_InvalidPlugin;
+            GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
+            return GPLUGMGR_E_InvalidPlugin;
         }
 
         /* 插件初始化 */
         int pRet = p.pluginInterface()->Init();
         if(0 != pRet)
         {
-            GPLUG_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
-            return GPLUG_E_InitPluginFailed;
+            GPLUGMGR_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            return GPLUGMGR_E_InitPluginFailed;
         }
     }
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-int GPLUG_API GPLUG_Init()
+int GPLUGMGR_API GPLUGMGR_Init()
 {
-    int ret = GPLUG_OK;
+    int ret = GPLUGMGR_OK;
 
     /* 加载配置参数 */
     ret = loadConfigFile();
-    if(GPLUG_OK != ret)
+    if(GPLUGMGR_OK != ret)
     {
-        GPLUG_LOG_ERROR(ret, "Fail to load confiugure file");
+        GPLUGMGR_LOG_ERROR(ret, "Fail to load confiugure file");
         return ret;
     }
 
     /* 加载插件 */
     ret = loadPlugins();
-    if(GPLUG_OK != ret)
+    if(GPLUGMGR_OK != ret)
     {
-        GPLUG_LOG_ERROR(ret, "Fail to load plugins");
+        GPLUGMGR_LOG_ERROR(ret, "Fail to load plugins");
         return ret;
     }
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-void GPLUG_API GPLUG_Uninit()
+void GPLUGMGR_API GPLUGMGR_Uninit()
 {
     LockGuard guard(&m_mutex);
 
@@ -214,14 +214,14 @@ void GPLUG_API GPLUG_Uninit()
     m_pluginMap.clear();
 }
 
-int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error)
+int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error)
 {
     LockGuard guard(&m_mutex);
 
     std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
     if(iter == m_pluginMap.end())
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
     
     Plugin & p = iter->second;
@@ -232,43 +232,43 @@ int GPLUG_API GPLUG_CreateInstance(const char* fkey, GPluginHandle* pInstance, i
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
         if(NULL == p.dlHandler)
         {
-            GPLUG_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUG_E_LoadDsoFailed;
+            GPLUGMGR_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
+            return GPLUGMGR_E_LoadDsoFailed;
         }
         p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
-            GPLUG_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUG_E_InvalidPlugin;
+            GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
+            return GPLUGMGR_E_InvalidPlugin;
         }
 
         /* 插件初始化 */
         *plugin_error = p.pluginInterface()->Init();
         if(0 != *plugin_error)
         {
-            GPLUG_LOG_ERROR(*plugin_error, "Unit plugin failed, plugin:%s", p.filePath.c_str());
-            return GPLUG_E_InitPluginFailed;
+            GPLUGMGR_LOG_ERROR(*plugin_error, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            return GPLUGMGR_E_InitPluginFailed;
         }
-        GPLUG_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
+        GPLUGMGR_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
     }
 
     *plugin_error = p.pluginInterface()->CreateInstance(pInstance);
     if(0 != *plugin_error)
     {
-        GPLUG_LOG_ERROR(*plugin_error, "CreateInstance failed, plugin:%s", p.filePath.c_str());
-        return GPLUG_ERR;
+        GPLUGMGR_LOG_ERROR(*plugin_error, "CreateInstance failed, plugin:%s", p.filePath.c_str());
+        return GPLUGMGR_ERR;
     }
 
     m_instanceMap[*pInstance] = &p;
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
+int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_error)
 {
     if(NULL == instance)
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
 
     LockGuard guard(&m_mutex);
@@ -276,7 +276,7 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
     if(iter == m_instanceMap.end())
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
     
     Plugin * p = iter->second;
@@ -284,20 +284,20 @@ int GPLUG_API GPLUG_DestroyInstance(GPluginHandle instance, int* plugin_error)
     *plugin_error = p->pluginInterface()->DestroyInstance(instance);
     if(0 != *plugin_error)
     {
-        GPLUG_LOG_ERROR(*plugin_error, "DestroyInstance failed, plugin:%s", p->filePath.c_str());
-        return GPLUG_ERR;
+        GPLUGMGR_LOG_ERROR(*plugin_error, "DestroyInstance failed, plugin:%s", p->filePath.c_str());
+        return GPLUGMGR_ERR;
     }
 
     m_instanceMap.erase(iter);
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
+int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
 {
     if(NULL == instance)
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
 
     LockGuard guard(&m_mutex);
@@ -305,28 +305,28 @@ int GPLUG_API GPLUG_QueryInterface(GPluginHandle instance, const char* ikey, GPl
     std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.find(instance);
     if(iter == m_instanceMap.end())
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
     
     Plugin * p = iter->second;
     *plugin_error = p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
     if(0 != *plugin_error)
     {
-        GPLUG_LOG_ERROR(*plugin_error, "QueryInterface failed, plugin:%s", p->filePath.c_str());
-        return GPLUG_ERR;
+        GPLUGMGR_LOG_ERROR(*plugin_error, "QueryInterface failed, plugin:%s", p->filePath.c_str());
+        return GPLUGMGR_ERR;
     }
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
+int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
 {
     LockGuard guard(&m_mutex);
 
     std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
     if(iter == m_pluginMap.end())
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
 
     Plugin & p = iter->second;
@@ -342,21 +342,21 @@ int GPLUG_API GPLUG_QueryConfigAttribute(const char* fkey, const char* attribute
     }
     else
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
 
     if(*bufLen < (value.size() + 1))
     {
-        return GPLUG_ERR;
+        return GPLUGMGR_ERR;
     }
 
     strncpy(attributeValue, value.c_str(), value.size());
     attributeValue[value.size()] = 0;
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
+int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
 {
     LockGuard guard(&m_mutex);
 
@@ -373,15 +373,15 @@ int GPLUG_API GPLUG_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
         i++;
     }
 
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }
 
-int GPLUG_API GPLUG_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout)
+int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout)
 {
     for(unsigned int i = 0; i < fkeysCout; i++)
     {
         free(fkeys[i]);
     }
     free(fkeys);
-    return GPLUG_OK;
+    return GPLUGMGR_OK;
 }

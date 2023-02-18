@@ -172,7 +172,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\gplug.cpp"
+				RelativePath="..\gplugMgr.cpp"
 				>
 			</File>
 			<File
@@ -190,7 +190,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\gplug.h"
+				RelativePath="..\..\include\gplugMgr.h"
 				>
 			</File>
 			<File
