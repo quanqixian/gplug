@@ -24,9 +24,9 @@
 
 
 /**
- * 插件类型、常量定义
+ * 插件实例句柄
  */
-typedef void* GPluginHandle;        // 插件实例句柄;
+typedef void * GPluginHandle;        
 
 /**
  * 接口函数返回值定义
@@ -42,7 +42,6 @@ typedef void* GPluginHandle;        // 插件实例句柄;
 
 /**
  * @brief 初始化插件;
- * @param void
  * @return 成功返回0，否则返回其他值;
  * @note 插件管理器可以确保不会重复调用该接口;
  */
@@ -50,7 +49,6 @@ typedef int (GPLUGIN_API * GPlugin_Init)();
 
 /**
  * @brief 反初始化插件;
- * @param void
  * @return 成功返回0，否则返回其他值;
  * @note 插件管理器可以确保不会重复调用该接口;
  */
@@ -84,7 +82,6 @@ typedef int (GPLUGIN_API * GPlugin_QueryInterface)(GPluginHandle instance, const
 
 /**
  * @brief 获取插件支持的功能接口集标识列表;
- * @param void
  * @return 返回插件支持的功能接口集标识列表，列表的最后一个字符串应始终为空;
  * @note 插件实现需保证该接口线程安全;
  */
@@ -92,7 +89,6 @@ typedef const char** (GPLUGIN_API * GPlugin_GetAllInterfaceIkeys)();
 
 /**
  * @brief 获取插件库文件版本字串;
- * @param void
  * @return 返回插件库文件版本字串;
  * @note 插件实现需保证该接口线程安全;
  */
@@ -100,10 +96,8 @@ typedef const char* (GPLUGIN_API * GPlugin_GetFileVersion)();
 
 
 //----------- 插件库必须导出的接口; ------------//
-
-
 /**
- * @brief 插件与插件管理器交互的接口集合;
+ * @brief 插件与插件管理器交互的接口集合
  */
 typedef struct GPluginExportInterface
 {
@@ -117,8 +111,8 @@ typedef struct GPluginExportInterface
 
 #ifdef __cplusplus
     GPluginExportInterface()
-        : Init(NULL), Uninit(NULL), CreateInstance(NULL), DestroyInstance(NULL)
-        , QueryInterface(NULL), GetAllInterfaceIkeys(NULL), GetFileVersion(NULL)
+        : Init(NULL), Uninit(NULL), CreateInstance(NULL), DestroyInstance(NULL), 
+		QueryInterface(NULL), GetAllInterfaceIkeys(NULL), GetFileVersion(NULL)
     {
     }
 
@@ -126,9 +120,9 @@ typedef struct GPluginExportInterface
         GPlugin_CreateInstance create_instance, GPlugin_DestroyInstance destroy_instance,
         GPlugin_QueryInterface query_interface, GPlugin_GetAllInterfaceIkeys get_all_interface_ikeys,
         GPlugin_GetFileVersion get_file_version)
-        : Init(init), Uninit(uninit), CreateInstance(create_instance)
-        , DestroyInstance(destroy_instance) , QueryInterface(query_interface)
-        , GetAllInterfaceIkeys(get_all_interface_ikeys), GetFileVersion(get_file_version)
+        : Init(init), Uninit(uninit), CreateInstance(create_instance), 
+		DestroyInstance(destroy_instance), QueryInterface(query_interface),
+		GetAllInterfaceIkeys(get_all_interface_ikeys), GetFileVersion(get_file_version)
     {
     }
 
@@ -140,9 +134,8 @@ typedef struct GPluginExportInterface
 
 }GPluginExportInterface;
 
-/** @fn typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)()
+/**
  * @brief 获取插件与插件管理器交互的接口集合;
- * @param void
  * @return 返回插件与插件管理器交互的接口集合;
  */
 typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)();
@@ -181,6 +174,5 @@ typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)
 }
 
 #endif // #if defined(__cplusplus)
-
 
 #endif
