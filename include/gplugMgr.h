@@ -11,16 +11,16 @@
 
 #if (defined(_WIN32) || defined(_WIN64))
     #if defined(GPLUGMGR_EXPORTS)
-        #define GPLUGMGR_EXTERN extern "C" __declspec(dllexport)
+        #define GPLUGMGR_EXPORT extern "C" __declspec(dllexport)
     #else
-        #define GPLUGMGR_EXTERN extern "C" __declspec(dllimport)
+        #define GPLUGMGR_EXPORT extern "C" __declspec(dllimport)
     #endif
     #define GPLUGMGR_API __stdcall
 #elif defined(__linux__)
-    #define GPLUGMGR_EXTERN extern "C"
+    #define GPLUGMGR_EXPORT extern "C"
     #define GPLUGMGR_API
 #else
-    #define GPLUGMGR_EXTERN
+    #define GPLUGMGR_EXPORT
     #define GPLUGMGR_API
 #endif
 
@@ -54,13 +54,13 @@ enum GPlugErrorCode
  * @brief      初始化插件管理器。
  * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_Init();
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_Init();
 
 /**
  * @brief      反初始化插件管理器。
  * @return     void
  */
-GPLUGMGR_EXTERN void GPLUGMGR_API GPLUGMGR_Uninit();
+GPLUGMGR_EXPORT void GPLUGMGR_API GPLUGMGR_Uninit();
 
 /**
  * @brief      创建插件实例。
@@ -69,7 +69,7 @@ GPLUGMGR_EXTERN void GPLUGMGR_API GPLUGMGR_Uninit();
  * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
  * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error);
 
 /**
  * @brief      销毁插件实例。
@@ -77,7 +77,7 @@ GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPlug
  * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
  * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_error);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_error);
 
 /**
  * @brief 获取插件功能接口集。
@@ -87,7 +87,7 @@ GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance
  * @param[out] plugin_error : 获取失败时，插件返回的错误码（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）。
  * @return     成功返回0，否则返回其他值。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error);
 
 /**
  * @brief      查询插件配置属性。
@@ -97,7 +97,7 @@ GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance,
  * @param[in/out] buf_len : 配置属性缓冲区长度/实际value字符串长度。
  * @return     成功返回0，否则返回其他值。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
 
 /**
  * @brief 查询所有插件，
@@ -105,7 +105,7 @@ GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey,
  * @param[out] fkeysCout : 插件数量。
  * @return     成功返回0，否则返回其他值。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout);
 
 /**
  * @brief 释放查询所有插件内存。
@@ -113,7 +113,7 @@ GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned 
  * @param[in]  fkeysCout : 插件数量。
  * @return 成功返回0，否则返回其他值。
  */
-GPLUGMGR_EXTERN int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout);
 
 #endif
 
