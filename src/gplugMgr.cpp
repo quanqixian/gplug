@@ -108,7 +108,7 @@ static int loadConfigFile()
             GPLUGMGR_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
             return GPLUGMGR_E_InvalidConfigFile;
         }
-		fileSet.insert(p.file);
+        fileSet.insert(p.file);
 
         m_pluginMap[p.fkey] = p;
         GPLUGMGR_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
@@ -145,6 +145,8 @@ static int loadPlugins()
         if(NULL == p.pluginInterface)
         {
             GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
+            DLWrapper::close(p.dlHandler);
+            p.dlHandler = NULL;
             return GPLUGMGR_E_InvalidPlugin;
         }
 
@@ -153,6 +155,8 @@ static int loadPlugins()
         if(0 != pRet)
         {
             GPLUGMGR_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            DLWrapper::close(p.dlHandler);
+            p.dlHandler = NULL;
             return GPLUGMGR_E_InitPluginFailed;
         }
     }
