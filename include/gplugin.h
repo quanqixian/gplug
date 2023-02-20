@@ -11,20 +11,20 @@
 
 #if (defined(_WIN32) || defined(_WIN64))
     #ifdef __cplusplus
-        #define GPLUGIN_EXTERN extern "C" __declspec(dllexport)
+        #define GPLUGIN_EXPORT extern "C" __declspec(dllexport)
     #else
-        #define GPLUGIN_EXTERN __declspec(dllexport)
+        #define GPLUGIN_EXPORT __declspec(dllexport)
     #endif
     #define GPLUGIN_API __stdcall
 #elif defined(__linux__)
     #ifdef __cplusplus
-        #define GPLUGIN_EXTERN extern "C"
+        #define GPLUGIN_EXPORT extern "C"
     #else
-        #define GPLUGIN_EXTERN
+        #define GPLUGIN_EXPORT
     #endif
     #define GPLUGIN_API
 #else
-    #define GPLUGIN_EXTERN
+    #define GPLUGIN_EXPORT
     #define GPLUGIN_API
 #endif
 
@@ -150,7 +150,7 @@ typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)
 // 调用该宏可以声明并实现插件必须导出的接口 GPLUGIN_GetPluginInterface;
 #if defined(__cplusplus)
     #define GPLUGIN_MAKE_EXPORT_INTERFACE(Init, Uninit, CreateInstance, DestroyInstance, QueryInterface, GetAllInterfaceIkeys, GetFileVersion) \
-        GPLUGIN_EXTERN const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
+        GPLUGIN_EXPORT const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
     { \
         static const GPluginExportInterface export_interface( \
         Init, \
@@ -165,7 +165,7 @@ typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)
     }
 #else
     #define GPLUGIN_MAKE_EXPORT_INTERFACE(Init, Uninit, CreateInstance, DestroyInstance, QueryInterface, GetAllInterfaceIkeys, GetFileVersion) \
-        GPLUGIN_EXTERN const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
+        GPLUGIN_EXPORT const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
     { \
         static const GPluginExportInterface export_interface = { \
         Init, \
