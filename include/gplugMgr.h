@@ -47,71 +47,71 @@ enum GPlugErrorCode
     GPLUGMGR_E_PluginConflict,     /* 插件之间冲突（如插件库文件名相同、插件标识相同等）。                                        */
     GPLUGMGR_E_InstanceConflict,   /* 插件实例冲突（存在插件实例相同）。                                                          */
     GPLUGMGR_E_InvalidConfigFile,  /* 无效的配置文件                                                                              */
-    GPLUGMGR_E_NotSupport          /* 不支持。                                                                                    */
+    GPLUGMGR_E_NotSupport          /* not support */
 };
 
 /**
- * @brief      初始化插件管理器。
- * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
+ * @brief      Initialize the plugin manager.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_Init();
 
 /**
- * @brief      反初始化插件管理器。
+ * @brief      Deinitialize the plugin manager.
  * @return     void
  */
 GPLUGMGR_EXPORT void GPLUGMGR_API GPLUGMGR_Deinit();
 
 /**
- * @brief      创建插件实例。
- * @param[in]  fkey : 插件文件标识
- * @param[out] pInstance : 创建成功则用于返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
- * @param[out] pluginError : 创建插件实例失败时，插件返回的错误码。
- * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
+ * @brief      Create a plugin instance.
+ * @param[in]  fkey : Plugin file identifier(file key)
+ * @param[out] pInstance : If the creation is successful, it is used to return the plugin instance handle, otherwise it returns NULL.
+ * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
 
 /**
- * @brief      销毁插件实例。
- * @param[in]  instance : 插件实例句柄。
- * @param[out] pluginError : 创建插件实例失败时，插件返回的错误码。
- * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
+ * @brief      Destroys the plugin instance.
+ * @param[in]  instance : Plugin instance handle.
+ * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* pluginError);
 
 /**
- * @brief 获取插件功能接口集。
- * @param[in]  instance : 插件实例句柄。
- * @param[in]  ikey : 插件功能接口集标识。
- * @param[out] plugin_interface : 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE。
- * @param[out] pluginError : 获取失败时，插件返回的错误码（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）。
- * @return     成功返回0，否则返回其他值。
+ * @brief      Get the set of plugin function interfaces.
+ * @param[in]  instance : Plugin instance handle.
+ * @param[in]  ikey : Plugin function interface set identification.
+ * @param[out] plugin_interface : Return the interface corresponding to ikey, If the interface is not implemented, return HPLUGIN_NOTSUPPORT
+ * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.().
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError);
 
 /**
- * @brief      查询插件配置属性。
- * @param[in]  fkey : 插件文件标识
- * @param[in]  attribute_name : 配置属性名称。
- * @param[out] attribute_value : 配置属性值, 若为NULL，则接口只在buf_len中返回实际长度。
+ * @brief      Query plugin configuration attribute.
+ * @param[in]  fkey : Plugin file identifier(file key)
+ * @param[in]  attributeName : Configuration parameter attribute name.
+ * @param[out] attributeValue : 配置属性值, 若为NULL，则接口只在buf_len中返回实际长度。
  * @param[in/out] buf_len : 配置属性缓冲区长度/实际value字符串长度。
- * @return     成功返回0，否则返回其他值。
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
 
 /**
- * @brief 查询所有插件，
- * @param[out] fkeys : 插件集。
- * @param[out] fkeysCout : 插件数量。
- * @return     成功返回0，否则返回其他值。
+ * @brief      Query the fkeys of all plugins.
+ * @param[out] fkeys : Plugin file identifier(file key) array
+ * @param[out] fkeysCout : Number of plugins(array size).
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout);
 
 /**
- * @brief 释放查询所有插件内存。
- * @param[in]  fkeys : 插件集。
- * @param[in]  fkeysCout : 插件数量。
- * @return 成功返回0，否则返回其他值。
+ * @brief      Free plugin fkeys memory.
+ * @param[in]  fkeys : Plugin file identifier(file key) array
+ * @param[in]  fkeysCout : Number of plugins(array size).
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout);
 
