@@ -7,19 +7,19 @@ int main(int argc, const char *argv[])
 {
     int ret = 0;
 
-    ret = GPLUGMGR_Init();
+    ret = GPluginMgr_Init();
     if(0 != ret)
     {
-        GPLUGMGR_LOG_ERROR(ret, "GPLUGMGR_Init error");
+        GPLUGMGR_LOG_ERROR(ret, "GPluginMgr_Init error");
         return ret;
     }
 
     char** fkeys = NULL;
     unsigned int fkeysCount = 0;
-    ret = GPLUGMGR_QueryAllFkeys(&fkeys, &fkeysCount);
+    ret = GPluginMgr_QueryAllFkeys(&fkeys, &fkeysCount);
     if(0 != ret)
     {
-        GPLUGMGR_LOG_ERROR(0, "GPLUGMGR_QueryAllFkeys error");
+        GPLUGMGR_LOG_ERROR(0, "GPluginMgr_QueryAllFkeys error");
         return ret;
     }
     GPLUGMGR_LOG_INFO("fkeysCount=%d", fkeysCount);
@@ -29,19 +29,19 @@ int main(int argc, const char *argv[])
         GPluginHandle instance = NULL;
         int errCode = 0;
         /* 创建插件实例 */
-        ret = GPLUGMGR_CreateInstance(fkeys[i], &instance, &errCode);
+        ret = GPluginMgr_CreateInstance(fkeys[i], &instance, &errCode);
         if(0 != ret)
         {
-            GPLUGMGR_LOG_ERROR(errCode, "GPLUGMGR_CreateInstance error");
+            GPLUGMGR_LOG_ERROR(errCode, "GPluginMgr_CreateInstance error");
             break;
         }
         /*查询插件实例是否具有获取名字功能接口集 */
         {
             GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
-            ret = GPLUGMGR_QueryInterface(instance, IKEY_IType, &interface, &errCode);
+            ret = GPluginMgr_QueryInterface(instance, IKEY_IType, &interface, &errCode);
             if(0 != ret)
             {
-                GPLUGMGR_LOG_ERROR(errCode, "GPLUGMGR_QueryInterface error, ikey=%s", IKEY_IType);
+                GPLUGMGR_LOG_ERROR(errCode, "GPluginMgr_QueryInterface error, ikey=%s", IKEY_IType);
                 return ret;
             }
 
@@ -53,10 +53,10 @@ int main(int argc, const char *argv[])
         /*查询插件实例是否具有获取重量功能接口集 */
         {
             GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
-            ret = GPLUGMGR_QueryInterface(instance, IKEY_IWeight, &interface, &errCode);
+            ret = GPluginMgr_QueryInterface(instance, IKEY_IWeight, &interface, &errCode);
             if(0 != ret)
             {
-                GPLUGMGR_LOG_ERROR(errCode, "GPLUGMGR_QueryInterface error, ikey=%s", IKEY_IWeight);
+                GPLUGMGR_LOG_ERROR(errCode, "GPluginMgr_QueryInterface error, ikey=%s", IKEY_IWeight);
                 return ret;
             }
 
@@ -69,30 +69,30 @@ int main(int argc, const char *argv[])
         {
             char attrBuf[256] = {0};
             unsigned int attrLen = sizeof(attrBuf);
-            ret = GPLUGMGR_QueryConfigAttribute(fkeys[i], "file", attrBuf, &attrLen);
+            ret = GPluginMgr_QueryConfigAttribute(fkeys[i], "file", attrBuf, &attrLen);
             if(0 != ret)
             {
-                GPLUGMGR_LOG_ERROR(ret, "GPLUGMGR_QueryConfigAttribute error");
+                GPLUGMGR_LOG_ERROR(ret, "GPluginMgr_QueryConfigAttribute error");
                 return ret;
             }
             GPLUGMGR_LOG_INFO("file=%s", attrBuf);
         }
 
-        ret = GPLUGMGR_DestroyInstance(instance, &errCode);
+        ret = GPluginMgr_DestroyInstance(instance, &errCode);
         if(0 != ret)
         {
-            GPLUGMGR_LOG_ERROR(0, "GPLUGMGR_DestroyInstance error");
+            GPLUGMGR_LOG_ERROR(0, "GPluginMgr_DestroyInstance error");
             break;
         }
     }
 
-    ret = GPLUGMGR_ReleaseAllFkeys(fkeys, fkeysCount);
+    ret = GPluginMgr_ReleaseAllFkeys(fkeys, fkeysCount);
     if(0 != ret)
     {
-        GPLUGMGR_LOG_ERROR(ret, "GPLUGMGR_ReleaseAllFkeys error");
+        GPLUGMGR_LOG_ERROR(ret, "GPluginMgr_ReleaseAllFkeys error");
     }
 
-    GPLUGMGR_Deinit();
+    GPluginMgr_Deinit();
 
     return 0;
 }

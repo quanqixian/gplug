@@ -164,7 +164,7 @@ static int loadPlugins()
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_Init()
+int GPLUGMGR_API GPluginMgr_Init()
 {
     int ret = GPLUGMGR_OK;
 
@@ -187,7 +187,7 @@ int GPLUGMGR_API GPLUGMGR_Init()
     return GPLUGMGR_OK;
 }
 
-void GPLUGMGR_API GPLUGMGR_Deinit()
+void GPLUGMGR_API GPluginMgr_Deinit()
 {
     LockGuard guard(&m_mutex);
 
@@ -218,7 +218,7 @@ void GPLUGMGR_API GPLUGMGR_Deinit()
     m_pluginMap.clear();
 }
 
-int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
+int GPLUGMGR_API GPluginMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
 {
     LockGuard guard(&m_mutex);
 
@@ -268,7 +268,7 @@ int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInsta
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* pluginError)
+int GPLUGMGR_API GPluginMgr_DestroyInstance(GPluginHandle instance, int* pluginError)
 {
     if(NULL == instance)
     {
@@ -297,7 +297,7 @@ int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* pluginErr
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError)
+int GPLUGMGR_API GPluginMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError)
 {
     if(NULL == instance)
     {
@@ -323,7 +323,7 @@ int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ike
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
+int GPLUGMGR_API GPluginMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
 {
     LockGuard guard(&m_mutex);
 
@@ -360,7 +360,7 @@ int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* att
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
+int GPLUGMGR_API GPluginMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
 {
     LockGuard guard(&m_mutex);
 
@@ -380,7 +380,7 @@ int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount)
+int GPLUGMGR_API GPluginMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount)
 {
     for(unsigned int i = 0; i < fkeysCount; i++)
     {
