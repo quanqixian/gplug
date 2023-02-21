@@ -71,11 +71,11 @@ typedef int (GPLUGIN_API * GPlugin_DestroyInstance)(GPluginHandle instance);
  * @brief      Get the plugin function interface through ikey
  * @param[in]  instance : Plugin instance handle
  * @param[in]  ikey : Plugin function interface identification(interface key)
- * @param plugin_interface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE;
+ * @param pluginInterface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE;
  * @return 成功返回0，否则返回其他值（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）;
  * @note 插件实现需保证该接口线程安全;
  */
-typedef int (GPLUGIN_API * GPlugin_QueryInterface)(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface);
+typedef int (GPLUGIN_API * GPlugin_QueryInterface)(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface);
 
 /**
  * @brief 获取插件支持的功能接口集标识列表;

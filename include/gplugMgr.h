@@ -85,11 +85,11 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance
  * @brief      Get the set of plugin function interfaces.
  * @param[in]  instance : Plugin instance handle.
  * @param[in]  ikey : Plugin function interface set identification.
- * @param[out] plugin_interface : Return the interface corresponding to ikey, If the interface is not implemented, return HPLUGIN_NOTSUPPORT
+ * @param[out] pluginInterface : Return the interface corresponding to ikey, If the interface is not implemented, return HPLUGIN_NOTSUPPORT
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.().
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface, int* pluginError);
 
 /**
  * @brief      Query plugin configuration attribute.

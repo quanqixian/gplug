@@ -297,7 +297,7 @@ int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance, int* pluginErr
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError)
+int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface, int* pluginError)
 {
     if(NULL == instance)
     {
@@ -313,7 +313,7 @@ int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ike
     }
     
     Plugin * p = iter->second;
-    *pluginError = p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
+    *pluginError = p->pluginInterface()->QueryInterface(instance, ikey, pluginInterface);
     if(0 != *pluginError)
     {
         GPLUGMGR_LOG_ERROR(*pluginError, "QueryInterface failed, plugin:%s", p->filePath.c_str());
