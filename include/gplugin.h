@@ -29,11 +29,6 @@
 #endif
 
 /**
- * 插件实例句柄
- */
-typedef void * GPluginHandle;        
-
-/**
  * 接口函数返回值定义
  */
 #define GPLUGIN_OK             (0)                   /* 成功;           */
@@ -42,43 +37,40 @@ typedef void * GPluginHandle;
 #define GPLUGIN_INVALID_HANDLE NULL                  /* 插件句柄无效值; */
 
 /**
- * 插件必须具备的与插件管理器交互的接口
+ * Plugin instance handle type definition.
  */
+typedef void * GPluginHandle;
 
 /**
- * @brief 初始化插件;
- * @return 成功返回0，否则返回其他值;
- * @note 插件管理器可以确保不会重复调用该接口;
+ * @brief      Initialize the plugin. The plugin manager will not repeatedly call this interface of one plugin.
+ * @return     Returns 0 on success, other values on failure.
  */
 typedef int (GPLUGIN_API * GPlugin_Init)();
 
 /**
- * @brief 反初始化插件;
- * @return 成功返回0，否则返回其他值;
- * @note 插件管理器可以确保不会重复调用该接口;
+ * @brief      Deinitialization plugin. The plugin manager will not repeatedly call this interface of one plugin.
+ * @return     Returns 0 on success, other values on failure.
  */
 typedef int (GPLUGIN_API * GPlugin_Uninit)();
 
 /**
- * @brief 创建插件实例;
- * @param instance [out] 创建成功则返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE;
- * @return 成功返回0，否则返回其他值;
- * @note 插件实现需保证该接口线程安全;
+ * @brief      Create a plugin instance.
+ * @param[out] instance : If the creation is successful, the plugin instance handle will be returned, otherwise NULL will be returned
+ * @return     Returns 0 on success, other values on failure.
  */
 typedef int (GPLUGIN_API * GPlugin_CreateInstance)(GPluginHandle* instance);
 
 /**
- * @brief 销毁插件实例;
- * @param instance [in] 插件实例句柄;
- * @return 成功返回0，否则返回其他值;
- * @note 插件实现需保证该接口线程安全;
+ * @brief      Destroy the plugin instance.
+ * @param[in]  instance : Plugin instance handle
+ * @return     Returns 0 on success, other values on failure.
  */
 typedef int (GPLUGIN_API * GPlugin_DestroyInstance)(GPluginHandle instance);
 
 /**
- * @brief 获取插件功能接口集;
- * @param instance [in] 插件实例句柄;
- * @param ikey [in] 插件功能接口集标识;
+ * @brief      Get the plugin function interface through ikey
+ * @param[in]  instance : Plugin instance handle
+ * @param[in]  ikey : Plugin function interface identification(interface key)
  * @param plugin_interface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE;
  * @return 成功返回0，否则返回其他值（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）;
  * @note 插件实现需保证该接口线程安全;
@@ -117,7 +109,7 @@ typedef struct GPluginExportInterface
 #ifdef __cplusplus
     GPluginExportInterface()
         : Init(NULL), Uninit(NULL), CreateInstance(NULL), DestroyInstance(NULL), 
-		QueryInterface(NULL), GetAllInterfaceIkeys(NULL), GetFileVersion(NULL)
+        QueryInterface(NULL), GetAllInterfaceIkeys(NULL), GetFileVersion(NULL)
     {
     }
 
@@ -126,8 +118,8 @@ typedef struct GPluginExportInterface
         GPlugin_QueryInterface query_interface, GPlugin_GetAllInterfaceIkeys get_all_interface_ikeys,
         GPlugin_GetFileVersion get_file_version)
         : Init(init), Uninit(uninit), CreateInstance(create_instance), 
-		DestroyInstance(destroy_instance), QueryInterface(query_interface),
-		GetAllInterfaceIkeys(get_all_interface_ikeys), GetFileVersion(get_file_version)
+        DestroyInstance(destroy_instance), QueryInterface(query_interface),
+        GetAllInterfaceIkeys(get_all_interface_ikeys), GetFileVersion(get_file_version)
     {
     }
 
