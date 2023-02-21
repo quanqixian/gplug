@@ -187,7 +187,7 @@ int GPLUGMGR_API GPLUGMGR_Init()
     return GPLUGMGR_OK;
 }
 
-void GPLUGMGR_API GPLUGMGR_Uninit()
+void GPLUGMGR_API GPLUGMGR_Deinit()
 {
     LockGuard guard(&m_mutex);
 

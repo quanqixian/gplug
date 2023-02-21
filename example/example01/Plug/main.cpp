@@ -92,7 +92,7 @@ int main(int argc, const char *argv[])
         GPLUGMGR_LOG_ERROR(ret, "GPLUGMGR_ReleaseAllFkeys error");
     }
 
-    GPLUGMGR_Uninit();
+    GPLUGMGR_Deinit();
 
     return 0;
 }

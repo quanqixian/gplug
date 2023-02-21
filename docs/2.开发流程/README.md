@@ -264,7 +264,7 @@ int main(int argc, const char *argv[])
 
     GPLUGMGR_ReleaseAllFkeys(fkeys, fkeysCout);
 
-    GPLUGMGR_Uninit();
+    GPLUGMGR_Deinit();
     return 0;
 }
 

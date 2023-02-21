@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-#if (defined(_WIN32) || defined(_WIN64))
+#ifdef  _WIN32
     #ifdef __cplusplus
         #define GPLUGIN_EXPORT extern "C" __declspec(dllexport)
     #else

@@ -60,7 +60,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_Init();
  * @brief      反初始化插件管理器。
  * @return     void
  */
-GPLUGMGR_EXPORT void GPLUGMGR_API GPLUGMGR_Uninit();
+GPLUGMGR_EXPORT void GPLUGMGR_API GPLUGMGR_Deinit();
 
 /**
  * @brief      创建插件实例。
