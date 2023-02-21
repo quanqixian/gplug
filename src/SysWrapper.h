@@ -108,7 +108,13 @@ public:
 #if (defined(_WIN32) || defined(_WIN64))
         handler = LoadLibraryA(path);
 #else
-        handler = dlopen(path, RTLD_LAZY);
+        /**
+         * RTLD_DEEPBIND : Place the lookup scope of the symbols in this shared
+         * object ahead of the global scope.  This means that a self-contained
+         * object will use its own symbols in preference to global symbols with
+         * the same name contained in objects that have already been loaded.
+         */
+        handler = dlopen(path, RTLD_LAZY | RTLD_DEEPBIND);
 #endif
         return handler;
     }
@@ -130,16 +136,16 @@ public:
         return dlclose(handler);
 #endif
     }
-	static std::string getError()
-	{
+    static std::string getError()
+    {
 #if (defined(_WIN32) || defined(_WIN64))
-		char buf[128] = {0};
-		_snprintf_s(buf, sizeof(buf),"last error code:%ld", GetLastError());
-		return buf;
+        char buf[128] = {0};
+        _snprintf_s(buf, sizeof(buf),"last error code:%ld", GetLastError());
+        return buf;
 #else
-		return dlerror();
+        return dlerror();
 #endif
-	}
+    }
 };
 
 #if (defined(_WIN32) || defined(_WIN64))
