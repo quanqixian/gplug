@@ -38,8 +38,8 @@ static int loadConfigFile()
     ret = PathWrapper::splicePath(basePath, fullPath);
     if(!ret)
     {
-        GPLUGMGR_LOG_ERROR(GPLUGMGR_E_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
-        return GPLUGMGR_E_FileNotExist;
+        GPLUGMGR_LOG_ERROR(GPLUGMGR_ERROR_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
+        return GPLUGMGR_ERROR_FileNotExist;
     }
 
     /* 从文件加载xml */
@@ -48,7 +48,7 @@ static int loadConfigFile()
     if(tinyxml2::XML_SUCCESS != xmlRet)
     {
         GPLUGMGR_LOG_ERROR(doc.ErrorID(), "Fail to load xml file:%s", fullPath.c_str());
-        return GPLUGMGR_E_InvalidConfigFile;
+        return GPLUGMGR_ERROR_InvalidConfigFile;
     }
 
     /* xml内容校验 */
@@ -65,7 +65,7 @@ static int loadConfigFile()
     if(!ret)
     {
         GPLUGMGR_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
-        return GPLUGMGR_E_InvalidConfigFile;
+        return GPLUGMGR_ERROR_InvalidConfigFile;
     }
 
     std::set<std::string> fileSet;
@@ -91,7 +91,7 @@ static int loadConfigFile()
         if(!ret)
         {
             GPLUGMGR_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
-            return GPLUGMGR_E_FileNotExist;
+            return GPLUGMGR_ERROR_FileNotExist;
         }
         p.filePath = fullPath;
 
@@ -99,14 +99,14 @@ static int loadConfigFile()
         if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
         {
             GPLUGMGR_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
-            return GPLUGMGR_E_InvalidConfigFile;
+            return GPLUGMGR_ERROR_InvalidConfigFile;
         }
 
         /* 检查插件文件是否重复 */
         if(fileSet.find(p.file) != fileSet.end())
         {
             GPLUGMGR_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
-            return GPLUGMGR_E_InvalidConfigFile;
+            return GPLUGMGR_ERROR_InvalidConfigFile;
         }
         fileSet.insert(p.file);
 
@@ -139,7 +139,7 @@ static int loadPlugins()
         if(NULL == p.dlHandler)
         {
             GPLUGMGR_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUGMGR_E_LoadDsoFailed;
+            return GPLUGMGR_ERROR_LoadDsoFailed;
         }
         p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
@@ -147,7 +147,7 @@ static int loadPlugins()
             GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             DLWrapper::close(p.dlHandler);
             p.dlHandler = NULL;
-            return GPLUGMGR_E_InvalidPlugin;
+            return GPLUGMGR_ERROR_InvalidPlugin;
         }
 
         /* 插件初始化 */
@@ -157,7 +157,7 @@ static int loadPlugins()
             GPLUGMGR_LOG_ERROR(pRet, "Unit plugin failed, plugin:%s", p.filePath.c_str());
             DLWrapper::close(p.dlHandler);
             p.dlHandler = NULL;
-            return GPLUGMGR_E_InitPluginFailed;
+            return GPLUGMGR_ERROR_InitPluginFailed;
         }
     }
 
@@ -237,13 +237,13 @@ int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInsta
         if(NULL == p.dlHandler)
         {
             GPLUGMGR_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUGMGR_E_LoadDsoFailed;
+            return GPLUGMGR_ERROR_LoadDsoFailed;
         }
         p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
         if(NULL == p.pluginInterface)
         {
             GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
-            return GPLUGMGR_E_InvalidPlugin;
+            return GPLUGMGR_ERROR_InvalidPlugin;
         }
 
         /* 插件初始化 */
@@ -251,7 +251,7 @@ int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInsta
         if(0 != *pluginError)
         {
             GPLUGMGR_LOG_ERROR(*pluginError, "Unit plugin failed, plugin:%s", p.filePath.c_str());
-            return GPLUGMGR_E_InitPluginFailed;
+            return GPLUGMGR_ERROR_InitPluginFailed;
         }
         GPLUGMGR_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
     }
