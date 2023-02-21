@@ -28,7 +28,6 @@
     #define GPLUGIN_API
 #endif
 
-
 /**
  * 插件实例句柄
  */

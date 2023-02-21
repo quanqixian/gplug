@@ -9,7 +9,7 @@
 
 #include "gplugin.h"
 
-#if (defined(_WIN32) || defined(_WIN64))
+#ifdef _WIN32
     #if defined(GPLUGMGR_EXPORTS)
         #define GPLUGMGR_EXPORT extern "C" __declspec(dllexport)
     #else
@@ -66,28 +66,28 @@ GPLUGMGR_EXPORT void GPLUGMGR_API GPLUGMGR_Deinit();
  * @brief      创建插件实例。
  * @param[in]  fkey : 插件文件标识
  * @param[out] pInstance : 创建成功则用于返回插件实例句柄，否则返回HPLUGIN_INVALID_HANDLE。
- * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
+ * @param[out] pluginError : 创建插件实例失败时，插件返回的错误码。
  * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
 
 /**
  * @brief      销毁插件实例。
  * @param[in]  instance : 插件实例句柄。
- * @param[out] plugin_error : 创建插件实例失败时，插件返回的错误码。
+ * @param[out] pluginError : 创建插件实例失败时，插件返回的错误码。
  * @return     成功返回0，失败返回其他值，参见 GPlugErrorCode。
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_error);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* pluginError);
 
 /**
  * @brief 获取插件功能接口集。
  * @param[in]  instance : 插件实例句柄。
  * @param[in]  ikey : 插件功能接口集标识。
  * @param[out] plugin_interface : 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE。
- * @param[out] plugin_error : 获取失败时，插件返回的错误码（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）。
+ * @param[out] pluginError : 获取失败时，插件返回的错误码（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）。
  * @return     成功返回0，否则返回其他值。
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError);
 
 /**
  * @brief      查询插件配置属性。

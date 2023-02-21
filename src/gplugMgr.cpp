@@ -218,7 +218,7 @@ void GPLUGMGR_API GPLUGMGR_Deinit()
     m_pluginMap.clear();
 }
 
-int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* plugin_error)
+int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
 {
     LockGuard guard(&m_mutex);
 
@@ -247,19 +247,19 @@ int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInsta
         }
 
         /* 插件初始化 */
-        *plugin_error = p.pluginInterface()->Init();
-        if(0 != *plugin_error)
+        *pluginError = p.pluginInterface()->Init();
+        if(0 != *pluginError)
         {
-            GPLUGMGR_LOG_ERROR(*plugin_error, "Unit plugin failed, plugin:%s", p.filePath.c_str());
+            GPLUGMGR_LOG_ERROR(*pluginError, "Unit plugin failed, plugin:%s", p.filePath.c_str());
             return GPLUGMGR_E_InitPluginFailed;
         }
         GPLUGMGR_LOG_WARN(0, "fkey=%s, file=%s delayload ok", p.fkey.c_str(), p.file.c_str());
     }
 
-    *plugin_error = p.pluginInterface()->CreateInstance(pInstance);
-    if(0 != *plugin_error)
+    *pluginError = p.pluginInterface()->CreateInstance(pInstance);
+    if(0 != *pluginError)
     {
-        GPLUGMGR_LOG_ERROR(*plugin_error, "CreateInstance failed, plugin:%s", p.filePath.c_str());
+        GPLUGMGR_LOG_ERROR(*pluginError, "CreateInstance failed, plugin:%s", p.filePath.c_str());
         return GPLUGMGR_ERR;
     }
 
@@ -268,7 +268,7 @@ int GPLUGMGR_API GPLUGMGR_CreateInstance(const char* fkey, GPluginHandle* pInsta
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_error)
+int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* pluginError)
 {
     if(NULL == instance)
     {
@@ -285,10 +285,10 @@ int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_er
     
     Plugin * p = iter->second;
 
-    *plugin_error = p->pluginInterface()->DestroyInstance(instance);
-    if(0 != *plugin_error)
+    *pluginError = p->pluginInterface()->DestroyInstance(instance);
+    if(0 != *pluginError)
     {
-        GPLUGMGR_LOG_ERROR(*plugin_error, "DestroyInstance failed, plugin:%s", p->filePath.c_str());
+        GPLUGMGR_LOG_ERROR(*pluginError, "DestroyInstance failed, plugin:%s", p->filePath.c_str());
         return GPLUGMGR_ERR;
     }
 
@@ -297,7 +297,7 @@ int GPLUGMGR_API GPLUGMGR_DestroyInstance(GPluginHandle instance, int* plugin_er
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* plugin_error)
+int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError)
 {
     if(NULL == instance)
     {
@@ -313,10 +313,10 @@ int GPLUGMGR_API GPLUGMGR_QueryInterface(GPluginHandle instance, const char* ike
     }
     
     Plugin * p = iter->second;
-    *plugin_error = p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
-    if(0 != *plugin_error)
+    *pluginError = p->pluginInterface()->QueryInterface(instance, ikey, plugin_interface);
+    if(0 != *pluginError)
     {
-        GPLUGMGR_LOG_ERROR(*plugin_error, "QueryInterface failed, plugin:%s", p->filePath.c_str());
+        GPLUGMGR_LOG_ERROR(*pluginError, "QueryInterface failed, plugin:%s", p->filePath.c_str());
         return GPLUGMGR_ERR;
     }
 
