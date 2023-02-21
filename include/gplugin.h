@@ -29,12 +29,12 @@
 #endif
 
 /**
- * 接口函数返回值定义
+ * Interface function return value definition.
  */
-#define GPLUGIN_OK             (0)                   /* 成功;           */
-#define GPLUGIN_ERR            (-1)                  /* 失败;           */
-#define GPLUGIN_NOTSUPPORT     (-2)                  /* 不支持;         */
-#define GPLUGIN_INVALID_HANDLE NULL                  /* 插件句柄无效值; */
+#define GPLUGIN_OK             (0)                   /* success */
+#define GPLUGIN_ERR            (-1)                  /* failure */
+#define GPLUGIN_NOTSUPPORT     (-2)                  /* no support */
+#define GPLUGIN_INVALID_HANDLE NULL                  /* invalid handle */
 
 /**
  * Plugin instance handle type definition.
@@ -70,45 +70,41 @@ typedef int (GPLUGIN_API * GPlugin_DestroyInstance)(GPluginHandle instance);
 /**
  * @brief      Get the plugin function interface through ikey
  * @param[in]  instance : Plugin instance handle
- * @param[in]  ikey : Plugin function interface identification(interface key)
- * @param pluginInterface [out] 若插件实例实现了与插件功能接口集标识对应的接口集，则返回该接口集句柄，否则返回HPLUGIN_INVALID_HANDLE;
- * @return 成功返回0，否则返回其他值（若没有实现与插件功能接口集标识对应的接口集，返回HPLUGIN_NOTSUPPORT）;
- * @note 插件实现需保证该接口线程安全;
+ * @param[in]  ikey : interface key(Plugin function interface identification)
+ * @param[out] pluginInterface : If the plug-in instance implements the corresponding interface set, return the handle of the interface,
+                otherwise return GPLUGIN_INVALID_HANDLE.
+ * @return     Returns 0 on success, other values on failure.(If the corresponding interface is not implemented, return GPLUGIN_NOTSUPPORT)
  */
 typedef int (GPLUGIN_API * GPlugin_QueryInterface)(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface);
 
 /**
- * @brief 获取插件支持的功能接口集标识列表;
- * @return 返回插件支持的功能接口集标识列表，列表的最后一个字符串应始终为空;
- * @note 插件实现需保证该接口线程安全;
+ * @brief      Get all interface key of the plugin.
+ * @return     Returns a list of feature interface set ids supported by the plugin, the last string of the list should always be empty.
  */
 typedef const char** (GPLUGIN_API * GPlugin_GetAllInterfaceIkeys)();
 
 /**
- * @brief 获取插件库文件版本字串;
- * @return 返回插件库文件版本字串;
- * @note 插件实现需保证该接口线程安全;
+ * @brief      Get plugin version.
+ * @return     Plugin version string.
  */
 typedef const char* (GPLUGIN_API * GPlugin_GetFileVersion)();
 
-
-//----------- 插件库必须导出的接口; ------------//
 /**
- * @brief 插件与插件管理器交互的接口集合
+ * @brief Interface for plugins to interact with the plugin manager.
  */
 typedef struct GPluginExportInterface
 {
-    GPlugin_Init Init;                                  ///< 初始化插件接口，必选接口;
-    GPlugin_Uninit Uninit;                              ///< 反初始化插件接口，必选接口;
-    GPlugin_CreateInstance CreateInstance;              ///< 创建插件实例接口，必选接口;
-    GPlugin_DestroyInstance DestroyInstance;            ///< 销毁插件实例接口，必选接口;
-    GPlugin_QueryInterface QueryInterface;              ///< 获取插件功能接口集接口，必选接口;
-    GPlugin_GetAllInterfaceIkeys GetAllInterfaceIkeys;  ///< 获取插件支持的功能接口集标识列表接口，可选接口;
-    GPlugin_GetFileVersion GetFileVersion;              ///< 获取插件库文件版本字串接口，可选接口;
+    GPlugin_Init Init;                                 /* Initialize the plugin */
+    GPlugin_Uninit Uninit;                             /* deinitialization plugin */
+    GPlugin_CreateInstance CreateInstance;             /* Create plugin instance */
+    GPlugin_DestroyInstance DestroyInstance;           /* Destroy the plugin instance */
+    GPlugin_QueryInterface QueryInterface;             /* Get the plugin function interface set */
+    GPlugin_GetAllInterfaceIkeys GetAllInterfaceIkeys; /* Get a list of function interface set identifiers supported by the plugin */
+    GPlugin_GetFileVersion GetFileVersion;             /* Get plugin version */
 
 #ifdef __cplusplus
     GPluginExportInterface()
-        : Init(NULL), Uninit(NULL), CreateInstance(NULL), DestroyInstance(NULL), 
+        : Init(NULL), Uninit(NULL), CreateInstance(NULL), DestroyInstance(NULL),
         QueryInterface(NULL), GetAllInterfaceIkeys(NULL), GetFileVersion(NULL)
     {
     }
@@ -127,49 +123,50 @@ typedef struct GPluginExportInterface
     {
     }
 
-#endif // #if defined(__cplusplus)
+#endif
 
 }GPluginExportInterface;
 
 /**
- * @brief 获取插件与插件管理器交互的接口集合;
- * @return 返回插件与插件管理器交互的接口集合;
+ * @brief      Get a collection of interfaces for plugins to interact with the plugin manager
+ * @return     Returns a collection of interfaces for plugins to interact with the plugin manager.
  */
 typedef const GPluginExportInterface* (GPLUGIN_API * GPlugin_GetPluginInterface)();
 
-
-// 调用该宏可以声明并实现插件必须导出的接口 GPLUGIN_GetPluginInterface;
+/**
+ * @def   GPLUGIN_MAKE_EXPORT_INTERFACE
+ * @brief Call the macro GPLUGIN_MAKE_EXPORT_INTERFACE to declare and implement the interface that the plug-in must export
+ */
 #if defined(__cplusplus)
     #define GPLUGIN_MAKE_EXPORT_INTERFACE(Init, Uninit, CreateInstance, DestroyInstance, QueryInterface, GetAllInterfaceIkeys, GetFileVersion) \
         GPLUGIN_EXPORT const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
-    { \
-        static const GPluginExportInterface export_interface( \
-        Init, \
-        Uninit, \
-        CreateInstance, \
-        DestroyInstance, \
-        QueryInterface, \
-        GetAllInterfaceIkeys, \
-        GetFileVersion \
-        ); \
-        return &export_interface; \
-    }
+        { \
+            static const GPluginExportInterface exportInterface(\
+                Init,                 \
+                Uninit,               \
+                CreateInstance,       \
+                DestroyInstance,      \
+                QueryInterface,       \
+                GetAllInterfaceIkeys, \
+                GetFileVersion        \
+            );                        \
+            return &exportInterface;  \
+        }
 #else
     #define GPLUGIN_MAKE_EXPORT_INTERFACE(Init, Uninit, CreateInstance, DestroyInstance, QueryInterface, GetAllInterfaceIkeys, GetFileVersion) \
         GPLUGIN_EXPORT const GPluginExportInterface* GPLUGIN_API GPLUGIN_GetPluginInterface() \
-    { \
-        static const GPluginExportInterface export_interface = { \
-        Init, \
-        Uninit, \
-        CreateInstance, \
-        DestroyInstance, \
-        QueryInterface, \
-        GetAllInterfaceIkeys, \
-        GetFileVersion \
-    }; \
-        return &export_interface; \
-}
-
-#endif // #if defined(__cplusplus)
+        { \
+            static const GPluginExportInterface exportInterface = {\
+                Init,                 \
+                Uninit,               \
+                CreateInstance,       \
+                DestroyInstance,      \
+                QueryInterface,       \
+                GetAllInterfaceIkeys, \
+                GetFileVersion        \
+            };                        \
+            return &exportInterface;  \
+        }
+#endif
 
 #endif
