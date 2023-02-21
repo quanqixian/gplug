@@ -360,13 +360,13 @@ int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey, const char* att
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
+int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
 {
     LockGuard guard(&m_mutex);
 
     int i = 0;
-    *fkeysCout = m_pluginMap.size();
-    *fkeys = (char**) malloc(sizeof(char*) * (*fkeysCout));
+    *fkeysCount = m_pluginMap.size();
+    *fkeys = (char**) malloc(sizeof(char*) * (*fkeysCount));
 
     for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
@@ -380,9 +380,9 @@ int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout)
     return GPLUGMGR_OK;
 }
 
-int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout)
+int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount)
 {
-    for(unsigned int i = 0; i < fkeysCout; i++)
+    for(unsigned int i = 0; i < fkeysCount; i++)
     {
         free(fkeys[i]);
     }

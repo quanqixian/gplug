@@ -102,18 +102,18 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryConfigAttribute(const char* fkey,
 /**
  * @brief      Query the fkeys of all plugins.
  * @param[out] fkeys : Plugin file identifier(file key) array
- * @param[out] fkeysCout : Number of plugins(array size).
+ * @param[out] fkeysCount : Number of plugins(array size).
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCout);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount);
 
 /**
  * @brief      Free plugin fkeys memory.
  * @param[in]  fkeys : Plugin file identifier(file key) array
- * @param[in]  fkeysCout : Number of plugins(array size).
+ * @param[in]  fkeysCount : Number of plugins(array size).
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCout);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPLUGMGR_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount);
 
 #endif
 

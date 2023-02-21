@@ -15,15 +15,15 @@ int main(int argc, const char *argv[])
     }
 
     char** fkeys = NULL;
-    unsigned int fkeysCout = 0;
-    ret = GPLUGMGR_QueryAllFkeys(&fkeys, &fkeysCout);
+    unsigned int fkeysCount = 0;
+    ret = GPLUGMGR_QueryAllFkeys(&fkeys, &fkeysCount);
     if(0 != ret)
     {
         GPLUGMGR_LOG_ERROR(0, "GPLUGMGR_QueryAllFkeys error");
         return ret;
     }
-    GPLUGMGR_LOG_INFO("fkeysCout=%d", fkeysCout);
-    for(int i = 0; i < fkeysCout; i++)
+    GPLUGMGR_LOG_INFO("fkeysCount=%d", fkeysCount);
+    for(int i = 0; i < fkeysCount; i++)
     {
         GPLUGMGR_LOG_INFO("fkeys[%d]=%s", i, fkeys[i]);
         GPluginHandle instance = NULL;
@@ -86,7 +86,7 @@ int main(int argc, const char *argv[])
         }
     }
 
-    ret = GPLUGMGR_ReleaseAllFkeys(fkeys, fkeysCout);
+    ret = GPLUGMGR_ReleaseAllFkeys(fkeys, fkeysCount);
     if(0 != ret)
     {
         GPLUGMGR_LOG_ERROR(ret, "GPLUGMGR_ReleaseAllFkeys error");
