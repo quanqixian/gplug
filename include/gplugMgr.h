@@ -56,13 +56,13 @@ enum GPlugErrorCode
  * @brief      Initialize the plugin manager.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_Init();
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_Init();
 
 /**
  * @brief      Deinitialize the plugin manager.
  * @return     void
  */
-GPLUGMGR_EXPORT void GPLUGMGR_API GPluginMgr_Deinit();
+GPLUGMGR_EXPORT void GPLUGMGR_API GPlugMgr_Deinit();
 
 /**
  * @brief      Create a plugin instance.
@@ -71,7 +71,7 @@ GPLUGMGR_EXPORT void GPLUGMGR_API GPluginMgr_Deinit();
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
 
 /**
  * @brief      Destroys the plugin instance.
@@ -79,7 +79,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_CreateInstance(const char* fkey, GPl
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_DestroyInstance(GPluginHandle instance, int* pluginError);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance, int* pluginError);
 
 /**
  * @brief      Get the set of plugin function interfaces.
@@ -89,7 +89,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_DestroyInstance(GPluginHandle instan
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.().
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* plugin_interface, int* pluginError);
 
 /**
  * @brief      Query plugin configuration attribute.
@@ -99,7 +99,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_QueryInterface(GPluginHandle instanc
  * @param[in/out] buf_len : 配置属性缓冲区长度/实际value字符串长度。
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
 
 /**
  * @brief      Query the fkeys of all plugins.
@@ -107,7 +107,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_QueryConfigAttribute(const char* fke
  * @param[out] fkeysCount : Number of plugins(array size).
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount);
 
 /**
  * @brief      Free plugin fkeys memory.
@@ -115,6 +115,6 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_QueryAllFkeys(char*** fkeys, unsigne
  * @param[in]  fkeysCount : Number of plugins(array size).
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPluginMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount);
+GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount);
 
 #endif
