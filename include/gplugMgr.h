@@ -95,8 +95,8 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance,
  * @brief      Query plugin configuration attribute.
  * @param[in]  fkey : Plugin file identifier(file key)
  * @param[in]  attributeName : Configuration parameter attribute name.
- * @param[out] attributeValue : 配置属性值, 若为NULL，则接口只在buf_len中返回实际长度。
- * @param[in/out] buf_len : 配置属性缓冲区长度/实际value字符串长度。
+ * @param[out] attributeValue : Configuration parameter attribute value.
+ * @param[in/out] buf_len : 配置属性缓冲区长度/实际value buf长度。
  * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);

@@ -21,9 +21,9 @@ class PathWrapper
 {
 public:
     /**
-     * @brief      拼接路径
-     * @param[in]  basePath : 基础路径
-     * @param[out] retPath : 全路径
+     * @brief      stitching path
+     * @param[in]  basePath : base path
+     * @param[out] retPath : Full path
      * @return     true : success false : fail
      */
     static bool splicePath(std::string basePath, std::string & retPath)
@@ -32,7 +32,7 @@ public:
         std::string workDir;
         std::string fullPath;
 
-        /* 获取当前工作路径 */
+        /* Get the current working path */
         ret = getCurrentWorkDir(workDir);
         if(!ret)
         {
@@ -40,17 +40,17 @@ public:
             return ret;
         }
 
-        /* 拼接全路径 */
+        /* splice full path */
     #if (defined(_WIN32) || defined(_WIN64))
         fullPath = workDir + std::string("\\") + basePath;
     #else
         fullPath = workDir + std::string("/") + basePath;
     #endif
 
-        /* 设置返回值 */
+        /* set return value */
         retPath = fullPath;
 
-        /* 检查是否存在文件或路径 */
+        /* Check if file or path exists */
         ret = isPathExist(fullPath);
         if(!ret)
         {

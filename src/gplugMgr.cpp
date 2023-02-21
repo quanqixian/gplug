@@ -16,7 +16,7 @@ struct Plugin
     std::string fkey;
     std::string file;
     std::string filePath;
-    DLWrapper::DLHandle dlHandler; /* 打开动态库后获得的动态库句柄 */
+    DLWrapper::DLHandle dlHandler; /* The dynamic library handle obtained after opening the dynamic library */
     GPlugin_GetPluginInterface pluginInterface;
     bool delayload;
     Plugin() : dlHandler(NULL), pluginInterface(NULL), delayload(false)
@@ -32,7 +32,7 @@ static int loadConfigFile()
 {
     bool ret = true;
 
-    /* 拼接配置文件路径 */
+    /* Stitching configuration file path */
     std::string fullPath;
     std::string basePath = "gplugin/gplugin.xml";
     ret = PathWrapper::splicePath(basePath, fullPath);
@@ -42,7 +42,7 @@ static int loadConfigFile()
         return GPLUGMGR_ERROR_FileNotExist;
     }
 
-    /* 从文件加载xml */
+    /* load xml from file */
     tinyxml2::XMLDocument doc;
     int xmlRet = doc.LoadFile(fullPath.c_str());
     if(tinyxml2::XML_SUCCESS != xmlRet)
@@ -51,7 +51,7 @@ static int loadConfigFile()
         return GPLUGMGR_ERROR_InvalidConfigFile;
     }
 
-    /* xml内容校验 */
+    /* xml content validation */
     tinyxml2::XMLElement* plugin = NULL; 
     ret = ret && doc.FirstChildElement("gplug");
     ret = ret && (plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin"));
@@ -69,14 +69,14 @@ static int loadConfigFile()
     }
 
     std::set<std::string> fileSet;
-    /* 上锁 */
+    /* lock the mutex */
     LockGuard guard(&m_mutex);
 
-    /* 读取配置 */
+    /* read configuration */
     plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin");
     do 
     {
-        /* 读取配置参数 */
+        /* read configuration parameters */
         Plugin p;
         p.fkey = plugin->Attribute("fkey");
         plugin->QueryBoolAttribute("delayload", &p.delayload);
@@ -84,7 +84,10 @@ static int loadConfigFile()
         std::string file = plugin->Attribute("file");
         p.file = file;
 
-        /* 以配置文件所在目录为基本目录，拼接文件绝对路径 */
+        /**
+         * Take the directory where the configuration file is located as the basic directory, 
+         * and the absolute path of the stitching file 
+         */
         file = "gplugin/" + file;
         std::string fullpath;
         ret = PathWrapper::splicePath(file, fullPath);
@@ -95,14 +98,14 @@ static int loadConfigFile()
         }
         p.filePath = fullPath;
 
-        /* 检查fkey是否出现重复 */
+        /* Check for duplicates in fkey */
         if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
         {
             GPLUGMGR_LOG_ERROR(-1, "fkey can not repeated in configure file, fkey :%s", p.fkey.c_str());
             return GPLUGMGR_ERROR_InvalidConfigFile;
         }
 
-        /* 检查插件文件是否重复 */
+        /* Check for duplicate plugin filenames */
         if(fileSet.find(p.file) != fileSet.end())
         {
             GPLUGMGR_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
@@ -121,10 +124,10 @@ static int loadConfigFile()
 
 static int loadPlugins()
 {
-    /* 上锁 */
+    /* lock the mutex */
     LockGuard guard(&m_mutex);
 
-    /* 根据配置文件加载动态库 */
+    /* Load dynamic library according to configuration file */
     for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
         Plugin & p = iter->second;
@@ -150,7 +153,7 @@ static int loadPlugins()
             return GPLUGMGR_ERROR_InvalidPlugin;
         }
 
-        /* 插件初始化 */
+        /* Plugin initialization */
         int pRet = p.pluginInterface()->Init();
         if(0 != pRet)
         {
@@ -168,7 +171,7 @@ int GPLUGMGR_API GPlugMgr_Init()
 {
     int ret = GPLUGMGR_OK;
 
-    /* 加载配置参数 */
+    /* Load configuration parameters */
     ret = loadConfigFile();
     if(GPLUGMGR_OK != ret)
     {
@@ -176,7 +179,7 @@ int GPLUGMGR_API GPlugMgr_Init()
         return ret;
     }
 
-    /* 加载插件 */
+    /* load plugin */
     ret = loadPlugins();
     if(GPLUGMGR_OK != ret)
     {
@@ -191,7 +194,7 @@ void GPLUGMGR_API GPlugMgr_Deinit()
 {
     LockGuard guard(&m_mutex);
 
-    /* 销毁所有实例 */
+    /* destroy all instances */
     for(std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.begin(); iter != m_instanceMap.end(); ++ iter)
     {
         Plugin * p = iter->second;
@@ -199,7 +202,7 @@ void GPLUGMGR_API GPlugMgr_Deinit()
     }
     m_instanceMap.clear();
 
-    /* 卸载打开的库 */
+    /* unload open library */
     for(std::map<std::string, Plugin>::iterator iter = m_pluginMap.begin(); iter != m_pluginMap.end(); ++iter)
     {
         Plugin & p = iter->second;
@@ -207,7 +210,7 @@ void GPLUGMGR_API GPlugMgr_Deinit()
         {
             if(p.pluginInterface)
             {
-                /* 插件反初始化 */
+                /* Plugin deinitialization */
                 p.pluginInterface()->Uninit();
             }
 
@@ -230,7 +233,7 @@ int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInsta
     
     Plugin & p = iter->second;
 
-    /* 由于延长加载未加载插件，第一次使用时加载 */
+    /* Plugin not loaded due to lazy loading, loaded on first use */
     if(NULL == p.pluginInterface)
     {
         p.dlHandler = DLWrapper::open(p.filePath.c_str());
@@ -246,7 +249,7 @@ int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInsta
             return GPLUGMGR_ERROR_InvalidPlugin;
         }
 
-        /* 插件初始化 */
+        /* Plugin lazy initialization */
         *pluginError = p.pluginInterface()->Init();
         if(0 != *pluginError)
         {
@@ -325,6 +328,16 @@ int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ike
 
 int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen)
 {
+    bool ret = true;
+    ret = ret && (NULL != fkey);
+    ret = ret && (NULL != attributeName);
+    ret = ret && (NULL != attributeValue);
+    if(!ret)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Error parameter");
+        return GPLUGMGR_ERR;
+    }
+
     LockGuard guard(&m_mutex);
 
     std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
