@@ -12,7 +12,7 @@
 #include "gplugin.h"
 
 #ifdef _WIN32
-    #if defined(GPLUGMGR_EXPORTS)
+    #if defined(GPLUGMGR_EXPORT_SYMBOL)
         #define GPLUGMGR_EXPORT extern "C" __declspec(dllexport)
     #else
         #define GPLUGMGR_EXPORT extern "C" __declspec(dllimport)

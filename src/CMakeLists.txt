@@ -12,6 +12,8 @@ set(GPLUG_SOURCES
 	tinyxml2.cpp
 )
 
+add_definitions(-DGPLUGMGR_EXPORT_SYMBOL)
+
 find_package(Threads REQUIRED)
 
 if(GPLUG_BUILD_SHARED_LIBS)
