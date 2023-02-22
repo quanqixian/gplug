@@ -17,13 +17,9 @@ target_include_directories(test01 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include
 	)
 target_link_libraries(test01 gplug)
-#add_custom_command(TARGET test01
-#	POST_BUILD
-#	COMMAND 
-#	VERBATIM
-#	)
-	
-add_test(NAME test01 COMMAND test01 WORKING_DIRECTORY)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/gplugin/
+	DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gplugin)
 
+add_test(NAME test01 COMMAND test01)
 

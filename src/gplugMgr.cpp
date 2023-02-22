@@ -54,7 +54,19 @@ static int loadConfigFile()
     /* xml content validation */
     tinyxml2::XMLElement* plugin = NULL; 
     ret = ret && doc.FirstChildElement("gplug");
+    if(!ret)
+    {
+        GPLUGMGR_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
+        return GPLUGMGR_ERROR_InvalidConfigFile;
+    }
+
+    /* No element is OK */
     ret = ret && (plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin"));
+    if(!ret)
+    {
+        GPLUGMGR_LOG_WARN(0, "No element in config file:%s", fullPath.c_str());
+        return GPLUGMGR_OK;
+    }
 
     for(; ret && plugin; plugin = plugin->NextSiblingElement("plugin"))
     {
