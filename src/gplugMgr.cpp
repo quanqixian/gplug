@@ -9,6 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if (defined(_WIN32) || defined(_WIN64))
+    #define GPLUGIN_SYMBOL "_GPLUGIN_GetPluginInterface@0"
+#else
+    #define GPLUGIN_SYMBOL "GPLUGIN_GetPluginInterface"
+#endif
+
 using namespace SysWrapper;
 
 struct Plugin
@@ -34,7 +40,13 @@ static int loadConfigFile()
 
     /* Stitching configuration file path */
     std::string fullPath;
+
+#if (defined(_WIN32) || defined(_WIN64))
+   std::string basePath = "gplugin\\gplugin.xml";
+#else
     std::string basePath = "gplugin/gplugin.xml";
+#endif
+
     ret = PathWrapper::splicePath(basePath, fullPath);
     if(!ret)
     {
@@ -100,7 +112,12 @@ static int loadConfigFile()
          * Take the directory where the configuration file is located as the basic directory, 
          * and the absolute path of the stitching file 
          */
+    #if (defined(_WIN32) || defined(_WIN64))
+        file = "gplugin\\" + file;
+    #else
         file = "gplugin/" + file;
+    #endif
+
         std::string fullpath;
         ret = PathWrapper::splicePath(file, fullPath);
         if(!ret)
@@ -156,7 +173,7 @@ static int loadPlugins()
             GPLUGMGR_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUGMGR_ERROR_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, GPLUGIN_SYMBOL);
         if(NULL == p.pluginInterface)
         {
             GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
@@ -254,7 +271,7 @@ int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInsta
             GPLUGMGR_LOG_ERROR(-1, "Load the dynamic library fail, filePath:%s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUGMGR_ERROR_LoadDsoFailed;
         }
-        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, "GPLUGIN_GetPluginInterface");
+        p.pluginInterface = (GPlugin_GetPluginInterface)DLWrapper::getSym(p.dlHandler, GPLUGIN_SYMBOL);
         if(NULL == p.pluginInterface)
         {
             GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
