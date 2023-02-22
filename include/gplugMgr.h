@@ -29,7 +29,7 @@
 /*
  * 插件管理器类型、常量、错误码定义
  */
-enum GPlugErrorCode
+enum GPlugMgrErrorCode
 {
     GPLUGMGR_OK                     = 0,                 /* 操作成功 */
     GPLUGMGR_ERR                    = -1,                /* 操作失败 */
@@ -54,7 +54,7 @@ enum GPlugErrorCode
 
 /**
  * @brief      Initialize the plugin manager.
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_Init();
 
@@ -69,7 +69,7 @@ GPLUGMGR_EXPORT void GPLUGMGR_API GPlugMgr_Deinit();
  * @param[in]  fkey : Plugin file identifier(file key)
  * @param[out] pInstance : If the creation is successful, it is used to return the plugin instance handle, otherwise it returns NULL.
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
 
@@ -77,7 +77,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPlug
  * @brief      Destroys the plugin instance.
  * @param[in]  instance : Plugin instance handle.
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance, int* pluginError);
 
@@ -87,7 +87,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance
  * @param[in]  ikey : Plugin function interface set identification.
  * @param[out] pluginInterface : Return the interface corresponding to ikey, If the interface is not implemented, return GPLUGIN_NOTSUPPORT
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.().
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface, int* pluginError);
 
@@ -97,7 +97,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance,
  * @param[in]  attributeName : Configuration parameter attribute name.
  * @param[out] attributeValue : Configuration parameter attribute value.
  * @param[in/out] buf_len : 配置属性缓冲区长度/实际value buf长度。
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
 
@@ -105,7 +105,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey,
  * @brief      Query the fkeys of all plugins.
  * @param[out] fkeys : Plugin file identifier(file key) array
  * @param[out] fkeysCount : Number of plugins(array size).
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount);
 
@@ -113,7 +113,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned 
  * @brief      Free plugin fkeys memory.
  * @param[in]  fkeys : Plugin file identifier(file key) array
  * @param[in]  fkeysCount : Number of plugins(array size).
- * @return     Returns 0 on success, other values on failure, see @ref GPlugErrorCode.
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount);
 
