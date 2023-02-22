@@ -12,6 +12,10 @@ set(GPLUG_SOURCES
 	tinyxml2.cpp
 )
 
+#   If the GPLUGMGR_EXPORT_SYMBOL macro is defined, GPLUGMGR_DLL_DECLARE will be
+# defined as __declspec( dllexport ), which is used to export symbols when
+# compiling the gplug library.
+#
 add_definitions(-DGPLUGMGR_EXPORT_SYMBOL)
 
 find_package(Threads REQUIRED)

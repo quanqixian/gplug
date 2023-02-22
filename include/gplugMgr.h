@@ -12,17 +12,21 @@
 #include "gplugin.h"
 
 #ifdef _WIN32
+    /**
+     * The GPLUGMGR_EXPORT_SYMBOL macro is defined in the cmake file that
+     * compiles the gplug library.
+     */
     #if defined(GPLUGMGR_EXPORT_SYMBOL)
-        #define GPLUGMGR_EXPORT extern "C" __declspec(dllexport)
+        #define GPLUGMGR_DLL_DECLARE extern "C" __declspec(dllexport)
     #else
-        #define GPLUGMGR_EXPORT extern "C" __declspec(dllimport)
+        #define GPLUGMGR_DLL_DECLARE extern "C" __declspec(dllimport)
     #endif
     #define GPLUGMGR_API __stdcall
 #elif defined(__linux__)
-    #define GPLUGMGR_EXPORT extern "C"
+    #define GPLUGMGR_DLL_DECLARE extern "C"
     #define GPLUGMGR_API
 #else
-    #define GPLUGMGR_EXPORT
+    #define GPLUGMGR_DLL_DECLARE
     #define GPLUGMGR_API
 #endif
 
@@ -56,13 +60,13 @@ enum GPlugMgrErrorCode
  * @brief      Initialize the plugin manager.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_Init();
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_Init();
 
 /**
  * @brief      Deinitialize the plugin manager.
  * @return     void
  */
-GPLUGMGR_EXPORT void GPLUGMGR_API GPlugMgr_Deinit();
+GPLUGMGR_DLL_DECLARE void GPLUGMGR_API GPlugMgr_Deinit();
 
 /**
  * @brief      Create a plugin instance.
@@ -71,7 +75,7 @@ GPLUGMGR_EXPORT void GPLUGMGR_API GPlugMgr_Deinit();
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError);
 
 /**
  * @brief      Destroys the plugin instance.
@@ -79,7 +83,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPlug
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance, int* pluginError);
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance, int* pluginError);
 
 /**
  * @brief      Get the set of plugin function interfaces.
@@ -89,7 +93,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance
  * @param[out] pluginError : The error code returned by the plugin when the creation of the plugin instance fails.().
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface, int* pluginError);
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance, const char* ikey, GPluginHandle* pluginInterface, int* pluginError);
 
 /**
  * @brief      Query plugin configuration attribute.
@@ -99,7 +103,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle instance,
  * @param[in/out] buf_len : 配置属性缓冲区长度/实际value buf长度。
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);
 
 /**
  * @brief      Query the fkeys of all plugins.
@@ -107,7 +111,7 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey,
  * @param[out] fkeysCount : Number of plugins(array size).
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount);
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount);
 
 /**
  * @brief      Free plugin fkeys memory.
@@ -115,6 +119,6 @@ GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned 
  * @param[in]  fkeysCount : Number of plugins(array size).
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_EXPORT int GPLUGMGR_API GPlugMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount);
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount);
 
 #endif
