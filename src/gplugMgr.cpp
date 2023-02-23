@@ -8,9 +8,15 @@
 #include <set>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
-#if (defined(_WIN32) || defined(_WIN64))
-    #define GPLUGIN_SYMBOL "_GPLUGIN_GetPluginInterface@0"
+/* This is not a good way to deal with different symbols on different platforms */
+#ifdef _WIN32
+    #ifdef _WIN64
+        #define GPLUGIN_SYMBOL "GPLUGIN_GetPluginInterface"
+    #else
+        #define GPLUGIN_SYMBOL "_GPLUGIN_GetPluginInterface@0"
+    #endif
 #else
     #define GPLUGIN_SYMBOL "GPLUGIN_GetPluginInterface"
 #endif
@@ -42,7 +48,7 @@ static int loadConfigFile()
     std::string fullPath;
 
 #if (defined(_WIN32) || defined(_WIN64))
-   std::string basePath = "gplugin\\gplugin.xml";
+    std::string basePath = "gplugin\\gplugin.xml";
 #else
     std::string basePath = "gplugin/gplugin.xml";
 #endif
@@ -114,8 +120,10 @@ static int loadConfigFile()
          */
     #if (defined(_WIN32) || defined(_WIN64))
         file = "gplugin\\" + file;
+        std::replace (file.begin(), file.end(), '/', '\\');
     #else
         file = "gplugin/" + file;
+        std::replace (file.begin(), file.end(), '\\', '/');
     #endif
 
         std::string fullpath;
