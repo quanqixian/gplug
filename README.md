@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./doxygen/Logo.jpg" alt="gplug logo"/>
+</p>
+
 # 1.概述
 
 [![badge](https://img.shields.io/badge/license-Zlib-blue)](./LICENSE.txt)
