@@ -20,5 +20,10 @@ target_include_directories(PluginMgr01 PUBLIC
 target_link_libraries(PluginMgr01 gplug)
 
 install(TARGETS PluginMgr01 DESTINATION bin/example01)
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/gplugin" DESTINATION bin/example01)
+
+if (WIN32)
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/gplugin/gplugin_win.xml" DESTINATION bin/example01/gplugin RENAME gplugin.xml)
+else()
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/gplugin/gplugin.xml" DESTINATION bin/example01/gplugin)
+endif()
 
