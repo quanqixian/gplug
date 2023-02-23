@@ -39,10 +39,20 @@ struct Plugin
 std::map<std::string, Plugin> m_pluginMap;      /* first: file key, second: plugin info */
 std::map<GPluginHandle, Plugin*> m_instanceMap; /*  */
 SysWrapper::Mutex m_mutex;
+volatile bool m_isInited = false;               /* initialized flag */
 
 static int loadConfigFile()
 {
     bool ret = true;
+
+    /* lock the mutex */
+    LockGuard guard(&m_mutex);
+
+    if(m_isInited)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Already inited, can not init again.");
+        return GPLUGMGR_ERR;
+    }
 
     /* Stitching configuration file path */
     std::string fullPath;
@@ -83,6 +93,8 @@ static int loadConfigFile()
     if(!ret)
     {
         GPLUGMGR_LOG_WARN(0, "No element in config file:%s", fullPath.c_str());
+        /* set initialized flag */
+        m_isInited = true;
         return GPLUGMGR_OK;
     }
 
@@ -99,8 +111,6 @@ static int loadConfigFile()
     }
 
     std::set<std::string> fileSet;
-    /* lock the mutex */
-    LockGuard guard(&m_mutex);
 
     /* read configuration */
     plugin = doc.FirstChildElement("gplug")->FirstChildElement("plugin");
@@ -155,6 +165,9 @@ static int loadConfigFile()
         
         plugin = plugin->NextSiblingElement("plugin");
     }while(plugin);
+
+    /* set initialized flag */
+    m_isInited = true;
 
     return GPLUGMGR_OK;
 }
@@ -256,6 +269,8 @@ void GPLUGMGR_API GPlugMgr_Deinit()
         }
     }
     m_pluginMap.clear();
+
+    m_isInited = false;
 }
 
 int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
