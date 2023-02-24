@@ -289,6 +289,8 @@ int GPLUGMGR_API GPlugMgr_Deinit()
 
 int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
 {
+    *pInstance = NULL;
+
     LockGuard guard(&m_mutex);
 
     std::map<std::string, Plugin>::iterator iter = m_pluginMap.find(fkey);
