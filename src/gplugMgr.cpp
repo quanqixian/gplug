@@ -45,15 +45,6 @@ static int loadConfigFile()
 {
     bool ret = true;
 
-    /* lock the mutex */
-    LockGuard guard(&m_mutex);
-
-    if(m_isInited)
-    {
-        GPLUGMGR_LOG_ERROR(-1, "Already inited, can not init again.");
-        return GPLUGMGR_ERR;
-    }
-
     /* Stitching configuration file path */
     std::string fullPath;
 
@@ -93,8 +84,6 @@ static int loadConfigFile()
     if(!ret)
     {
         GPLUGMGR_LOG_WARN(0, "No element in config file:%s", fullPath.c_str());
-        /* set initialized flag */
-        m_isInited = true;
         return GPLUGMGR_OK;
     }
 
@@ -109,6 +98,9 @@ static int loadConfigFile()
         GPLUGMGR_LOG_ERROR(doc.ErrorID(), "Content error in xml file:%s", fullPath.c_str());
         return GPLUGMGR_ERROR_InvalidConfigFile;
     }
+
+    /* lock the mutex */
+    LockGuard guard(&m_mutex);
 
     std::set<std::string> fileSet;
 
@@ -166,9 +158,6 @@ static int loadConfigFile()
         plugin = plugin->NextSiblingElement("plugin");
     }while(plugin);
 
-    /* set initialized flag */
-    m_isInited = true;
-
     return GPLUGMGR_OK;
 }
 
@@ -221,6 +210,16 @@ int GPLUGMGR_API GPlugMgr_Init()
 {
     int ret = GPLUGMGR_OK;
 
+    {
+        /* lock the mutex */
+        LockGuard guard(&m_mutex);
+        if(m_isInited)
+        {
+            GPLUGMGR_LOG_ERROR(-1, "Already inited, can not init again.");
+            return GPLUGMGR_ERR;
+        }
+    }
+
     /* Load configuration parameters */
     ret = loadConfigFile();
     if(GPLUGMGR_OK != ret)
@@ -235,6 +234,13 @@ int GPLUGMGR_API GPlugMgr_Init()
     {
         GPLUGMGR_LOG_ERROR(ret, "Fail to load plugins");
         return ret;
+    }
+
+    {
+        /* lock the mutex */
+        LockGuard guard(&m_mutex);
+        /* set initialized flag */
+        m_isInited = true;
     }
 
     return GPLUGMGR_OK;

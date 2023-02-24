@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(GPLUG_TESTS_DIR
 	test01
+	test02
 )
 
 foreach(testDir ${GPLUG_TESTS_DIR})
