@@ -41,6 +41,30 @@ std::map<GPluginHandle, Plugin*> m_instanceMap; /*  */
 SysWrapper::Mutex m_mutex;
 volatile bool m_isInited = false;               /* initialized flag */
 
+static int checkAndprintPluginInfo(const Plugin & p)
+{
+    bool ret = true;
+
+    ret = ret && (NULL != p.pluginInterface()->Init);
+    ret = ret && (NULL != p.pluginInterface()->Uninit);
+    ret = ret && (NULL != p.pluginInterface()->CreateInstance);
+    ret = ret && (NULL != p.pluginInterface()->DestroyInstance);
+    ret = ret && (NULL != p.pluginInterface()->QueryInterface);
+    ret = ret && (NULL != p.pluginInterface()->GetAllInterfaceIkeys);
+    ret = ret && (NULL != p.pluginInterface()->GetFileVersion);
+    if(!ret)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Plugin function invalid");
+        return GPLUGMGR_ERROR_InvalidPlugin;
+    }
+
+    GPLUGMGR_LOG_INFO("Plugin fkey=%s", p.fkey.c_str());
+    GPLUGMGR_LOG_INFO("Plugin file=%s", p.file.c_str());
+    GPLUGMGR_LOG_INFO("Plugin filePath=%s", p.filePath.c_str());
+    GPLUGMGR_LOG_INFO("Plugin version=%s", p.pluginInterface()->GetFileVersion());
+    return GPLUGMGR_OK;
+}
+
 static int loadConfigFile()
 {
     bool ret = true;
@@ -192,6 +216,13 @@ static int loadPlugins()
             return GPLUGMGR_ERROR_InvalidPlugin;
         }
 
+        int ret = checkAndprintPluginInfo(p);
+        if(0 != ret)
+        {
+            GPLUGMGR_LOG_ERROR(ret, "checkAndprintPluginInfo error");
+            return ret;
+        }
+
         /* Plugin initialization */
         int pRet = p.pluginInterface()->Init();
         if(0 != pRet)
@@ -325,6 +356,13 @@ int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInsta
         {
             GPLUGMGR_LOG_ERROR(-1, "Fail to get symbol from %s, error:%s", p.filePath.c_str(), DLWrapper::getError().c_str());
             return GPLUGMGR_ERROR_InvalidPlugin;
+        }
+
+        int ret = checkAndprintPluginInfo(p);
+        if(0 != ret)
+        {
+            GPLUGMGR_LOG_ERROR(ret, "checkAndprintPluginInfo error");
+            return ret;
         }
 
         /* Plugin lazy initialization */

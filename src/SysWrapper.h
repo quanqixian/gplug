@@ -58,7 +58,7 @@ public:
             return ret;
         }
 
-        GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
+        //GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
 
         return ret;
     }
