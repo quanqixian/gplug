@@ -64,9 +64,9 @@ GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_Init();
 
 /**
  * @brief      Deinitialize the plugin manager.
- * @return     void
+ * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
-GPLUGMGR_DLL_DECLARE void GPLUGMGR_API GPlugMgr_Deinit();
+GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_Deinit();
 
 /**
  * @brief      Create a plugin instance.

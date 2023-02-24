@@ -240,9 +240,15 @@ int GPLUGMGR_API GPlugMgr_Init()
     return GPLUGMGR_OK;
 }
 
-void GPLUGMGR_API GPlugMgr_Deinit()
+int GPLUGMGR_API GPlugMgr_Deinit()
 {
     LockGuard guard(&m_mutex);
+
+    if(!m_isInited)
+    {
+        GPLUGMGR_LOG_WARN(-1, "No initialize, can not deinitialize");
+        return GPLUGMGR_ERR;    
+    }
 
     /* destroy all instances */
     for(std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.begin(); iter != m_instanceMap.end(); ++ iter)
@@ -271,6 +277,8 @@ void GPLUGMGR_API GPlugMgr_Deinit()
     m_pluginMap.clear();
 
     m_isInited = false;
+
+    return GPLUGMGR_OK;
 }
 
 int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
@@ -428,6 +436,12 @@ int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* att
 int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
 {
     LockGuard guard(&m_mutex);
+
+    if(!m_isInited)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "No initialize.");
+        return GPLUGMGR_ERR;
+    }
 
     int i = 0;
     *fkeysCount = m_pluginMap.size();
