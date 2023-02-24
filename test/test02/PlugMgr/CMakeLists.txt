@@ -15,6 +15,7 @@ add_executable(test02 ${PLUGINMGR_SOURCES})
 set_target_properties(test02 PROPERTIES OUTPUT_NAME test02)
 target_include_directories(test02 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include
+	${CMAKE_CURRENT_SOURCE_DIR}/../interface
 	)
 target_link_libraries(test02 gplug gtest)
 

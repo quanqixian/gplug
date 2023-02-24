@@ -2,6 +2,8 @@
 #include "Debug.h"
 #include "gplugMgr.h"
 #include <string>
+#include "GetTypeInterface.h"
+#include "GetWeightInterface.h"
 
 /**
  * @brief test GPlugMgr_Init
@@ -270,6 +272,61 @@ TEST(GPlugMgr, GPlugMgr_QueryConfigAttribute)
         EXPECT_NE(ret, 0);
     }
 
+
+    ret = GPlugMgr_Deinit();
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+ * @brief test GPlugMgr_QueryInterface
+ */
+TEST(GPlugMgr, GPlugMgr_QueryInterface)
+{
+    int ret = 0;
+    char** fkeys = NULL;
+    unsigned int fkeysCount = 0;
+
+    ret = GPlugMgr_Init();
+    EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_QueryAllFkeys(&fkeys, &fkeysCount);
+    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(fkeysCount, 2);
+
+    for(int i = 0; i < fkeysCount; i++)
+    {
+        GPluginHandle instance = NULL;
+        int errCode = 0;
+
+        ret = GPlugMgr_CreateInstance(fkeys[i], &instance, &errCode);
+        ASSERT_EQ(ret, 0);
+
+        /* IGetTypeInterface */
+        {
+            GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
+            ret = GPlugMgr_QueryInterface(instance, IKEY_IType, &interface, &errCode);
+            ASSERT_EQ(ret, 0);
+
+            /* call get type function */
+            IGetTypeInterface * p = (IGetTypeInterface*) interface;
+        }
+
+        /* IGetWeightInterface */
+        {
+            GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
+            ret = GPlugMgr_QueryInterface(instance, IKEY_IWeight, &interface, &errCode);
+            ASSERT_EQ(ret, 0);
+
+            /*call get weight function */
+            IGetWeightInterface * p = (IGetWeightInterface*) interface;
+        }
+
+        ret = GPlugMgr_DestroyInstance(instance, &errCode);
+        EXPECT_EQ(ret, 0);
+    }
+
+    ret = GPlugMgr_ReleaseAllFkeys(fkeys, fkeysCount);
+    EXPECT_EQ(ret, 0);
 
     ret = GPlugMgr_Deinit();
     EXPECT_EQ(ret, 0);

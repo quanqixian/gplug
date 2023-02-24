@@ -2,10 +2,10 @@
 
 std::string Cat::type()
 {
-	return "Cat";
+    return "Cat";
 }
 
 std::string Cat::weight()
 {
-	return "5KG";
+    return "5KG";
 }
