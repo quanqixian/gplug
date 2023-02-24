@@ -100,7 +100,7 @@ GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_QueryInterface(GPluginHandle inst
  * @param[in]  fkey : Plugin file identifier(file key)
  * @param[in]  attributeName : Configuration parameter attribute name.
  * @param[out] attributeValue : Configuration parameter attribute value.
- * @param[in/out] buf_len : 配置属性缓冲区长度/实际value buf长度。
+ * @param[in,out] bufLen : The length of the buffer area, which is also used to store the length of the returned data.
  * @return     Returns 0 on success, other values on failure, see @ref GPlugMgrErrorCode.
  */
 GPLUGMGR_DLL_DECLARE int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* attributeName, char* attributeValue, unsigned int* bufLen);

@@ -410,6 +410,8 @@ int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* att
     ret = ret && (NULL != fkey);
     ret = ret && (NULL != attributeName);
     ret = ret && (NULL != attributeValue);
+    ret = ret && (NULL != bufLen);
+    ret = ret && (*bufLen > 1);
     if(!ret)
     {
         GPLUGMGR_LOG_ERROR(-1, "Error parameter");
@@ -447,6 +449,7 @@ int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* att
 
     strncpy(attributeValue, value.c_str(), value.size());
     attributeValue[value.size()] = 0;
+    *bufLen = value.size();
 
     return GPLUGMGR_OK;
 }

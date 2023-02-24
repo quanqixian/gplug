@@ -147,6 +147,54 @@ TEST(GPlugMgr, GPlugMgr_CreateInstance)
     EXPECT_EQ(ret, 0);
 }
 
+/**
+ * @brief test GPlugMgr_DestroyInstance
+ */
+TEST(GPlugMgr, GPlugMgr_DestroyInstance)
+{
+    int ret = 0;
+    char** fkeys = NULL;
+    unsigned int fkeysCount = 0;
+
+    ret = GPlugMgr_Init();
+    EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_QueryAllFkeys(&fkeys, &fkeysCount);
+    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(fkeysCount, 2);
+
+    for(int i = 0; i < fkeysCount; i++)
+    {
+        GPluginHandle instance = NULL;
+        int errCode = 0;
+
+        ret = GPlugMgr_CreateInstance(fkeys[i], &instance, &errCode);
+        ASSERT_EQ(ret, 0);
+
+        ret = GPlugMgr_DestroyInstance(instance, &errCode);
+        EXPECT_EQ(ret, 0);
+    }
+
+    {
+        int errCode = 0;
+        GPluginHandle instance = (GPluginHandle)1234;/* give a invalid value */
+        ret = GPlugMgr_DestroyInstance(instance, &errCode);
+        EXPECT_NE(ret, 0);
+    
+        ret = GPlugMgr_DestroyInstance(NULL, &errCode);
+        EXPECT_NE(ret, 0);
+
+        ret = GPlugMgr_DestroyInstance(instance, NULL);
+        EXPECT_NE(ret, 0);
+    }
+
+    ret = GPlugMgr_ReleaseAllFkeys(fkeys, fkeysCount);
+    EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_Deinit();
+    EXPECT_EQ(ret, 0);
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
