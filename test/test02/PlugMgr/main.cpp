@@ -65,6 +65,37 @@ TEST(GPlugMgr, GPlugMgr_QueryAllFkeys)
     ret = GPlugMgr_ReleaseAllFkeys(fkeys, fkeysCount);
     EXPECT_EQ(ret, 0);
 
+    ret = GPlugMgr_QueryAllFkeys(NULL, &fkeysCount);
+    EXPECT_NE(ret, 0);
+
+    ret = GPlugMgr_QueryAllFkeys(&fkeys, NULL);
+    EXPECT_NE(ret, 0);
+
+    ret = GPlugMgr_Deinit();
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+ * @brief test GPlugMgr_ReleaseAllFkeys
+ */
+TEST(GPlugMgr, GPlugMgr_ReleaseAllFkeys)
+{
+    int ret = 0;
+    char** fkeys = NULL;
+    unsigned int fkeysCount = 0;
+
+    ret = GPlugMgr_Init();
+    EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_QueryAllFkeys(&fkeys, &fkeysCount);
+    EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_ReleaseAllFkeys(fkeys, fkeysCount);
+    EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_ReleaseAllFkeys(NULL, fkeysCount);
+    EXPECT_NE(ret, 0);
+
     ret = GPlugMgr_Deinit();
     EXPECT_EQ(ret, 0);
 }

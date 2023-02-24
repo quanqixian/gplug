@@ -453,6 +453,12 @@ int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* att
 
 int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
 {
+    if((NULL == fkeys) || (NULL == fkeysCount))
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Error parameters.");
+        return GPLUGMGR_ERR;
+    }
+
     LockGuard guard(&m_mutex);
 
     if(!m_isInited)
@@ -479,6 +485,12 @@ int GPLUGMGR_API GPlugMgr_QueryAllFkeys(char*** fkeys, unsigned int* fkeysCount)
 
 int GPLUGMGR_API GPlugMgr_ReleaseAllFkeys(char** fkeys, unsigned int fkeysCount)
 {
+    if(NULL == fkeys)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Error parameters.");
+        return GPLUGMGR_ERR;
+    }
+
     for(unsigned int i = 0; i < fkeysCount; i++)
     {
         free(fkeys[i]);
