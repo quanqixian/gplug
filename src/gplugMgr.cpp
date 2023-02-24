@@ -289,6 +289,16 @@ int GPLUGMGR_API GPlugMgr_Deinit()
 
 int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInstance, int* pluginError)
 {
+    bool ret = true;
+    ret = ret && (NULL != fkey);
+    ret = ret && (NULL != pInstance);
+    ret = ret && (NULL != pluginError);
+    if(!ret)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Error parameter");
+        return GPLUGMGR_ERR;
+    }
+
     *pInstance = NULL;
 
     LockGuard guard(&m_mutex);
@@ -341,7 +351,7 @@ int GPLUGMGR_API GPlugMgr_CreateInstance(const char* fkey, GPluginHandle* pInsta
 
 int GPLUGMGR_API GPlugMgr_DestroyInstance(GPluginHandle instance, int* pluginError)
 {
-    if(NULL == instance)
+    if((NULL == instance) || (NULL == pluginError))
     {
         return GPLUGMGR_ERR;
     }

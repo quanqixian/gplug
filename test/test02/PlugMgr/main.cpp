@@ -104,6 +104,9 @@ TEST(GPlugMgr, GPlugMgr_CreateInstance)
         ret = GPlugMgr_CreateInstance("NoExist", &instance, &errCode);
         EXPECT_NE(ret, 0);
         EXPECT_EQ(instance, (GPluginHandle)NULL);
+
+        ret = GPlugMgr_CreateInstance("NoExist", NULL, &errCode);
+        EXPECT_NE(ret, 0);
     }
 
     ret = GPlugMgr_ReleaseAllFkeys(fkeys, fkeysCount);
