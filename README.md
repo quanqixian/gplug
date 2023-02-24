@@ -54,6 +54,36 @@ Check out examples [here](./example/README.md)
 # 5.编译
 
 
+1. Clone the repository
+
+```shell
+git clone https://gitee.com/QWorkShop/gplug.git
+```
+
+2. Generate the necessary build files
+
+   In this step, the third-party library will be cloned.
+
+```cmake
+cd EVHttpServer
+cmake -B build -S . -DCMAKE_INSTALL_PREFIX=/path/to/install -DCMAKE_BUILD_TYPE=Release
+```
+
+3. Compile the source code. In this step, third-party libraries, EVHttpServer library, samples, tests will be compiled.
+
+```cmake
+cmake --build build
+```
+
+4. Install to system
+
+```cmake
+cmake --install build
+```
+
+Now you can use the gplug library, include the header file in the code, link  the gplug library when compiling.
+
+
 
 # 6.局限性
 
