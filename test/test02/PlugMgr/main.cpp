@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "Debug.h"
 #include "gplugMgr.h"
+#include <string>
 
 /**
  * @brief test GPlugMgr_Init
@@ -190,6 +191,85 @@ TEST(GPlugMgr, GPlugMgr_DestroyInstance)
 
     ret = GPlugMgr_ReleaseAllFkeys(fkeys, fkeysCount);
     EXPECT_EQ(ret, 0);
+
+    ret = GPlugMgr_Deinit();
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+ * @brief test GPlugMgr_QueryConfigAttribute
+ */
+TEST(GPlugMgr, GPlugMgr_QueryConfigAttribute)
+{
+    int ret = 0;
+    char** fkeys = NULL;
+    unsigned int fkeysCount = 0;
+
+    ret = GPlugMgr_Init();
+    EXPECT_EQ(ret, 0);
+
+    {
+        char buf[256] = {0};
+        unsigned int len = sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("DogPlugin", "file", buf, &len);
+        EXPECT_EQ(ret, 0);
+        EXPECT_EQ(std::string("../../DogPlugin/libDogPlugin.so"), buf);
+
+        memset(buf, 0, sizeof(buf));
+        len= sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("DogPlugin", "delayload", buf, &len);
+        EXPECT_EQ(ret, 0);
+        EXPECT_EQ(std::string("true"), buf);
+        EXPECT_EQ(len, 4);
+    }
+
+    {
+        char buf[256] = {0};
+        unsigned int len = sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "file", buf, &len);
+        EXPECT_EQ(ret, 0);
+        EXPECT_EQ(std::string("../../CatPlugin/libCatPlugin.so"), buf);
+
+        memset(buf, 0, sizeof(buf));
+        len= sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "delayload", buf, &len);
+        EXPECT_EQ(ret, 0);
+        EXPECT_EQ(std::string("false"), buf);
+        EXPECT_EQ(len, 5);
+    }
+
+    {
+        char buf[256] = {0};
+        unsigned int len = sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("NoExistPlugin", "file", buf, &len);
+        EXPECT_NE(ret, 0);
+
+        memset(buf, 0, sizeof(buf));
+        len= sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("DogPlugin", "NoExistAttribute", buf, &len);
+        EXPECT_NE(ret, 0);
+    
+        memset(buf, 0, sizeof(buf));
+        len= sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "delayload", NULL, &len);
+        EXPECT_NE(ret, 0);
+    
+        memset(buf, 0, sizeof(buf));
+        len= sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "delayload", buf, NULL);
+        EXPECT_NE(ret, 0);
+
+        buf[256] = {0};
+        len = 0; /* buf size is invalid */
+        ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "file", buf, &len);
+        EXPECT_NE(ret, 0);
+    
+        buf[256] = {0};
+        len = 1; /* buf size is too small */
+        ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "file", buf, &len);
+        EXPECT_NE(ret, 0);
+    }
+
 
     ret = GPlugMgr_Deinit();
     EXPECT_EQ(ret, 0);
