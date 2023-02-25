@@ -28,14 +28,14 @@ int main(int argc, const char *argv[])
         GPLUGMGR_LOG_INFO("fkeys[%d]=%s", i, fkeys[i]);
         GPluginHandle instance = NULL;
         int errCode = 0;
-        /* 创建插件实例 */
+        /* Create plugin instance */
         ret = GPlugMgr_CreateInstance(fkeys[i], &instance, &errCode);
         if(0 != ret)
         {
             GPLUGMGR_LOG_ERROR(errCode, "GPlugMgr_CreateInstance error");
             break;
         }
-        /*查询插件实例是否具有获取名字功能接口集 */
+        /* Query plugin function interface */
         {
             GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
             ret = GPlugMgr_QueryInterface(instance, IKEY_IType, &interface, &errCode);
@@ -45,12 +45,12 @@ int main(int argc, const char *argv[])
                 return ret;
             }
 
-            /* 调用获取名字接口 */
+            /* call "type" function */
             IGetTypeInterface * p = (IGetTypeInterface*) interface;
             GPLUGMGR_LOG_INFO("fkey=%s, type=%s", fkeys[i], p->type());
         }
 
-        /*查询插件实例是否具有获取重量功能接口集 */
+        /* Query plugin function interface */
         {
             GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
             ret = GPlugMgr_QueryInterface(instance, IKEY_IWeight, &interface, &errCode);
@@ -60,12 +60,12 @@ int main(int argc, const char *argv[])
                 return ret;
             }
 
-            /* 调用获取名字接口 */
+            /* call "weight" function */
             IGetWeightInterface * p = (IGetWeightInterface*) interface;
             GPLUGMGR_LOG_INFO("fkey=%s, weight=%s", fkeys[i], p->weight());
         }
 
-        /* 查询插件属性 */
+        /* Query plugin attribute in configure file */
         {
             char attrBuf[256] = {0};
             unsigned int attrLen = sizeof(attrBuf);
