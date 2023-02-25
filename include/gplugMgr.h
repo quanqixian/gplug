@@ -35,25 +35,23 @@
  */
 enum GPlugMgrErrorCode
 {
-    GPLUGMGR_OK                     = 0,                 /* 操作成功 */
-    GPLUGMGR_ERR                    = -1,                /* 操作失败 */
-
-    GPLUGMGR_ERROR_InvalidParam         = (0x8000 + 1),      /* 输入参数无效。                                                        */
-    GPLUGMGR_ERROR_FileNotExist,       /* 插件库文件不存在。                                                                          */
-    GPLUGMGR_ERROR_FkeyNotExist,       /* 插件不存在（插件功能标识不存在）。                                                          */
-    GPLUGMGR_ERROR_IkeyNotExist,       /* 插件功能接口集不存在（插件功能接口集标识不存在）。                                          */
-    GPLUGMGR_ERROR_InvalidPlugin,      /* 无效的插件（未按规则导出 Hplugin_GetPluginInterface 接口，或与插件管理器交互的接口集无效    */
-    GPLUGMGR_ERROR_LoadDsoFailed,      /* 加载插件库失败。                                                                            */
-    GPLUGMGR_ERROR_UnloadDsoFailed,    /* 卸载插件库失败。                                                                            */
-    GPLUGMGR_ERROR_OutOfMemory,        /* 申请内存失败。                                                                              */
-    GPLUGMGR_ERROR_ParseXmlFailed,     /* 解析配置文件失败。                                                                          */
-    GPLUGMGR_ERROR_MemoryNotEnough,    /* 缓冲区空间不足。                                                                            */
-    GPLUGMGR_ERROR_InitPluginFailed,   /* 初始化插件失败。                                                                            */
-    GPLUGMGR_ERROR_UninitPluginFailed, /* 反初始化插件失败。                                                                          */
-    GPLUGMGR_ERROR_PluginConflict,     /* 插件之间冲突（如插件库文件名相同、插件标识相同等）。                                        */
-    GPLUGMGR_ERROR_InstanceConflict,   /* 插件实例冲突（存在插件实例相同）。                                                          */
-    GPLUGMGR_ERROR_InvalidConfigFile,  /* 无效的配置文件                                                                              */
-    GPLUGMGR_ERROR_NotSupport          /* not support */
+    GPLUGMGR_OK                       = 0,   /* success */
+    GPLUGMGR_ERR                      = -1,  /* failed */
+    GPLUGMGR_ERROR_InvalidParam       = -2,  /* Invalid parameter. */
+    GPLUGMGR_ERROR_FileNotExist       = -3,  /* Plugin file does not exist. */
+    GPLUGMGR_ERROR_FkeyNotExist       = -4,  /* File key not exist */
+    GPLUGMGR_ERROR_IkeyNotExist       = -5,  /* Interface key not exist */
+    GPLUGMGR_ERROR_InvalidPlugin      = -6,  /* Invalid plugin (the GPLUGIN_GetPluginInterface interface is not exported or any function GPLUGIN_GetPluginInterface is invalid)*/
+    GPLUGMGR_ERROR_LoadDsoFailed      = -7,  /* Failed to load plugin library */
+    GPLUGMGR_ERROR_UnloadDsoFailed    = -8,  /* Failed to unload plugin library */
+    GPLUGMGR_ERROR_OutOfMemory        = -9,  /* Fail to allocate memory */
+    GPLUGMGR_ERROR_ParseXmlFailed     = -10, /* Failed to parse configuration file. */
+    GPLUGMGR_ERROR_MemoryNotEnough    = -11, /* Not enough buffer space */
+    GPLUGMGR_ERROR_InitPluginFailed   = -12, /* Failed to initialize plugin */
+    GPLUGMGR_ERROR_UninitPluginFailed = -13, /* Deinitialization plugin failed */
+    GPLUGMGR_ERROR_PluginConflict     = -14, /* Conflicts between plugins (such as the same plugin library file name same FKey etc.).*/
+    GPLUGMGR_ERROR_InvalidConfigFile  = -15, /* Invalid configuration file. */
+    GPLUGMGR_ERROR_NotSupport         = -16, /* not support */
 };
 
 /**
