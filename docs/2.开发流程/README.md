@@ -1,16 +1,24 @@
-插件的开发和使用流程如下图所示：
+The development and usage process of the plug-in is as follows:
 
-![process](../pic/process.png)
+>Define the plugin functional interface
+>        ↓
+>Implement the plugin function interface
+>        ↓
+>Export plugin unified interface
+>        ↓
+>Create configuration file
+>        ↓
+>Use the PlugMgr interface to call the Plugin function interface
 
 
 
-# 1.开发插件
+# 1.Develop plugins
 
-## 1.1定义插件功能接口集
+## 1.1Define the set of plug-in functional interfaces
 
-随意定义两种功能接口。
+In this example, two functional interfaces are defined arbitrarily.
 
-定义“[获取类型功能接口集](../../example/example01/interface/GetTypeInterface.h)”：
+Define "get-type-function-interface-set":
 
 ```c++
 #ifndef _GET_TYPE_INTERFACE_H_
@@ -31,7 +39,7 @@ public:
 #endif
 ```
 
-定义“[获取重量功能接口集](../../example/example01/interface/GetWeightInterface.h)”：
+Define "Get Weight Functional Interface Set":
 
 ```c++
 #ifndef _GET_WEIGHT_INTERFACE_H_
@@ -54,9 +62,9 @@ public:
 
 
 
-## 1.2 实现插件功能接口
+## 1.2 Implement the plug-in function interface
 
-Dog类：
+In Dog class:
 
 ```c++
 #include "Dog.h"
@@ -71,7 +79,7 @@ std::string Dog::weight()
 }
 ```
 
-Cat类：
+In Cat class:
 
 ```c++
 #include "Cat.h"
@@ -87,7 +95,7 @@ std::string Cat::weight()
 }
 ```
 
-## 1.3按照插件规范导出插件接口
+## 1.3 Export the plug-in interface according to the plugin specification
 
 ```c++
 #include "Dog.h"
@@ -164,7 +172,7 @@ GPLUGIN_MAKE_EXPORT_INTERFACE(DogPlugin_init, DogPlugin_Uninit, DogPlugin_Create
 
 
 
-# 2.编写配置文件
+# 2.Create configuration file
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -176,7 +184,7 @@ GPLUGIN_MAKE_EXPORT_INTERFACE(DogPlugin_init, DogPlugin_Uninit, DogPlugin_Create
 
 
 
-# 3.调用插件管理接口
+# 3.Use the PlugMgr interface to call the Plugin function interface
 
 ```c++
 #include "Debug.h"
@@ -204,14 +212,14 @@ int main(int argc, const char *argv[])
         GPLUGMGR_LOG_INFO("fkeys[%d]=%s", i, fkeys[i]);
         GPluginHandle instance = NULL;
         int errCode = 0;
-        /* 创建插件实例 */
+        /* Create plugin instance */
         ret = GPlugMgr_CreateInstance(fkeys[i], &instance, &errCode);
         if(0 != ret)
         {
             GPLUGMGR_LOG_ERROR(errCode, "GPlugMgr_CreateInstance error");
             break;
         }
-        /*查询插件实例是否具有获取名字功能接口集 */
+        /* Query whether the plugin instance has "get name function interface set" */
         {
             GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
             ret = GPlugMgr_QueryInterface(instance, IKEY_IType, &interface, &errCode);
@@ -221,12 +229,12 @@ int main(int argc, const char *argv[])
                 return ret;
             }
 
-            /* 调用获取名字接口 */
+            /* Call the "Get type Interface" */
             IGetTypeInterface * p = (IGetTypeInterface*) interface;
             GPLUGMGR_LOG_INFO("fkey=%s, type=%s", fkeys[i], p->type().c_str());
         }
 
-        /*查询插件实例是否具有获取重量功能接口集 */
+        /* Query whether the plugin instance has "get weight function interface set"*/
         {
             GPluginHandle interface = GPLUGIN_INVALID_HANDLE;
             ret = GPlugMgr_QueryInterface(instance, IKEY_IWeight, &interface, &errCode);
@@ -236,12 +244,12 @@ int main(int argc, const char *argv[])
                 return ret;
             }
 
-            /* 调用获取名字接口 */
+            /* Call "Get Weight Interface" */
             IGetWeightInterface * p = (IGetWeightInterface*) interface;
             GPLUGMGR_LOG_INFO("fkey=%s, weight=%s", fkeys[i], p->weight().c_str());
         }
 
-		/* 查询插件属性 */
+		/* Query plugin attributes */
 		{
 			char attrBuf[256] = {0};
 			unsigned int attrLen = sizeof(attrBuf);
@@ -271,5 +279,3 @@ int main(int argc, const char *argv[])
 ```
 
 
-
-## 

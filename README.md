@@ -42,13 +42,21 @@ A plugin needs to implement the plugin interface, and the application program ca
 
 The process of developing is as follows:
 
-![process](./docs/pic/process.png)
+>Define the plugin functional interface
+>        ↓
+>Implement the plugin function interface
+>        ↓
+>Export plugin unified interface
+>        ↓
+>Create configuration file
+>        ↓
+>Use the PlugMgr interface to call the Plugin function interface
 
-[This](./docs/2.开发流程/README.md) is an example of developing a plug-in according to the flow.
+[This](./docs/2.开发流程/README.md) is an example of developing a plugin according to the flow.
 
 # 4.Examples
 
-Check out examples [here](./example/README.md)
+Check out more examples [here](./example/README.md).
 
 
 # 5.Build
