@@ -58,6 +58,7 @@ static int checkAndprintPluginInfo(const Plugin & p)
         return GPLUGMGR_ERROR_InvalidPlugin;
     }
 
+    GPLUGMGR_LOG_INFO("***** Plugin info *****");
     GPLUGMGR_LOG_INFO("Plugin fkey=%s", p.fkey.c_str());
     GPLUGMGR_LOG_INFO("Plugin file=%s", p.file.c_str());
     GPLUGMGR_LOG_INFO("Plugin filePath=%s", p.filePath.c_str());

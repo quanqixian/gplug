@@ -118,11 +118,6 @@ typedef struct GPluginExportInterface
         GetAllInterfaceIkeys(get_all_interface_ikeys), GetFileVersion(get_file_version)
     {
     }
-
-    ~GPluginExportInterface()
-    {
-    }
-
 #endif
 
 }GPluginExportInterface;
