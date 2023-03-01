@@ -14,7 +14,7 @@ gplug is used for unified management of plugins in applications. It is responsib
 
 gplug is designed to separate the plug-in interface from the user function interface. The plugin manager obtains the plugin function interface through the plugin specification interface, and then can directly interact with the plugin.
 
-![plugin](./docs/pic/plugin.png)
+![plugin](./docs/markdown/pic/plugin.png)
 
 There are three main parts in gplug: plugin, plugin manager, and plugin configuration file.
 
@@ -52,7 +52,7 @@ The process of developing is as follows:
 >        ↓
 >Use the PlugMgr interface to call the Plugin function interface
 
-[This](./docs/2.开发流程/README.md) is an example of developing a plugin according to the flow.
+[This](./docs/markdown/1.DevelopmentProcess/README.md) is an example of developing a plugin according to the flow.
 
 # 4.Examples
 
