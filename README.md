@@ -42,15 +42,15 @@ A plugin needs to implement the plugin interface, and the application program ca
 
 The process of developing is as follows:
 
->Define the plugin functional interface
->        ↓
->Implement the plugin function interface
->        ↓
->Export plugin unified interface
->        ↓
->Create configuration file
->        ↓
->Use the PlugMgr interface to call the Plugin function interface
+>Define the plugin functional interface 
+>        ↓ 
+>Implement the plugin function interface 
+>        ↓ 
+>Export plugin unified interface 
+>        ↓ 
+>Create configuration file 
+>        ↓ 
+>Use the PlugMgr interface to call the Plugin function interface 
 
 [This](./docs/markdown/1.DevelopmentProcess/README.md) is an example of developing a plugin according to the flow.
 
