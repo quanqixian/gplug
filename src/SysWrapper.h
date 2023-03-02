@@ -30,7 +30,7 @@ public:
      * @param[out] retPath : Full path
      * @return     true : success false : fail
      */
-    static bool splicePath(std::string basePath, std::string & retPath)
+    static bool splicePath(const std::string & basePath, std::string & retPath)
     {
         bool ret = true;
         std::string workDir;
@@ -73,7 +73,7 @@ public:
      * @param[out] retVec : used to return the found path
      * @return     true : success false : fail
      */
-    bool getFilesInDir(std::string rootPath, std::string fileName, std::vector<std::string> & retVec)
+    static bool getFilesInDir(std::string rootPath, std::string fileName, std::vector<std::string> & retVec)
     {
     #ifdef _WIN32
         bool ret = true;

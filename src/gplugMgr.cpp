@@ -66,25 +66,9 @@ static int checkAndprintPluginInfo(const Plugin & p)
     return GPLUGMGR_OK;
 }
 
-static int loadConfigFile()
+static int loadConfigFile(const std::string & fullPath)
 {
     bool ret = true;
-
-    /* Stitching configuration file path */
-    std::string fullPath;
-
-#if (defined(_WIN32) || defined(_WIN64))
-    std::string basePath = "gplugin\\gplugin.xml";
-#else
-    std::string basePath = "gplugin/gplugin.xml";
-#endif
-
-    ret = PathWrapper::splicePath(basePath, fullPath);
-    if(!ret)
-    {
-        GPLUGMGR_LOG_ERROR(GPLUGMGR_ERROR_FileNotExist, "Config file not exist, fullPath:%s", fullPath.c_str());
-        return GPLUGMGR_ERROR_FileNotExist;
-    }
 
     /* load xml from file */
     tinyxml2::XMLDocument doc;
@@ -141,26 +125,16 @@ static int loadConfigFile()
         std::string file = plugin->Attribute("file");
         p.file = file;
 
-        /**
-         * Take the directory where the configuration file is located as the basic directory, 
-         * and the absolute path of the stitching file 
-         */
+        std::string dirName = fullPath.substr(0, fullPath.size() - strlen("gplugin.xml") - 1);
     #if (defined(_WIN32) || defined(_WIN64))
-        file = "gplugin\\" + file;
-        std::replace (file.begin(), file.end(), '/', '\\');
+        std::replace(file.begin(), file.end(), '/', '\\');
+        std::string pluginPath = dirName +  "\\" + file;
     #else
-        file = "gplugin/" + file;
-        std::replace (file.begin(), file.end(), '\\', '/');
+        std::replace(file.begin(), file.end(), '\\', '/');
+        std::string pluginPath = dirName +  "/" + file;
     #endif
 
-        std::string fullpath;
-        ret = PathWrapper::splicePath(file, fullPath);
-        if(!ret)
-        {
-            GPLUGMGR_LOG_ERROR(-1, "Plugin file not exist, path :%s", fullPath.c_str());
-            return GPLUGMGR_ERROR_FileNotExist;
-        }
-        p.filePath = fullPath;
+        p.filePath = pluginPath;
 
         /* Check for duplicates in fkey */
         if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
@@ -170,12 +144,12 @@ static int loadConfigFile()
         }
 
         /* Check for duplicate plugin filenames */
-        if(fileSet.find(p.file) != fileSet.end())
+        if(fileSet.find(pluginPath) != fileSet.end())
         {
             GPLUGMGR_LOG_ERROR(-1, "Plugin file can not repeated in configure file, file :%s", p.file.c_str());
             return GPLUGMGR_ERROR_InvalidConfigFile;
         }
-        fileSet.insert(p.file);
+        fileSet.insert(pluginPath);
 
         m_pluginMap[p.fkey] = p;
         GPLUGMGR_LOG_INFO("Plugin fkey=%s, file=%s,delayload=%d", p.fkey.c_str(), p.filePath.c_str(), p.delayload);
@@ -186,6 +160,36 @@ static int loadConfigFile()
     return GPLUGMGR_OK;
 }
 
+static int loadConfigFiles()
+{
+    std::string currentPath;
+    bool boolRet = PathWrapper::splicePath(".", currentPath);
+    if(!boolRet)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Fail to get current path.");
+        return GPLUGMGR_ERR;
+    }
+
+    std::vector<std::string> retVec;
+    boolRet = PathWrapper::getFilesInDir(currentPath, "gplugin.xml", retVec);
+    if(!boolRet)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "Fail to getFilesInDir.");
+        return GPLUGMGR_ERR;
+    }
+
+    for(unsigned int i = 0; i < retVec.size(); i++)
+    {
+        int ret = loadConfigFile(retVec[i]);
+        if(0 != ret)
+        {
+            GPLUGMGR_LOG_ERROR(ret, "Fail to load configure file:%s", retVec[i].c_str());
+            return ret;
+        }
+    }
+
+    return GPLUGMGR_OK;
+}
 static int loadPlugins()
 {
     /* lock the mutex */
@@ -252,8 +256,8 @@ int GPLUGMGR_API GPlugMgr_Init()
         }
     }
 
-    /* Load configuration parameters */
-    ret = loadConfigFile();
+    /* Load configuration files */
+    ret = loadConfigFiles();
     if(GPLUGMGR_OK != ret)
     {
         GPLUGMGR_LOG_ERROR(ret, "Fail to load confiugure file");
