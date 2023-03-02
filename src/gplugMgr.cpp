@@ -82,7 +82,7 @@ static int loadConfigFile()
     ret = PathWrapper::splicePath(basePath, fullPath);
     if(!ret)
     {
-        GPLUGMGR_LOG_ERROR(GPLUGMGR_ERROR_FileNotExist, "Cofig file not exist, fullPath:%s", fullPath.c_str());
+        GPLUGMGR_LOG_ERROR(GPLUGMGR_ERROR_FileNotExist, "Config file not exist, fullPath:%s", fullPath.c_str());
         return GPLUGMGR_ERROR_FileNotExist;
     }
 

@@ -3,6 +3,8 @@
 
 #include <string>
 #include <exception>
+#include <queue>
+#include <vector>
 
 #if (defined(_WIN32) || defined(_WIN64))
     #include <io.h>
@@ -12,6 +14,8 @@
     #include <unistd.h>
     #include <dlfcn.h>
     #include <pthread.h>
+    #include <sys/types.h>
+    #include <dirent.h>
 #endif
 
 namespace SysWrapper
@@ -61,6 +65,139 @@ public:
         //GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
 
         return ret;
+    }
+    /**
+     * @brief      Get all file paths with the same name as the specified file name in the specified directory(Breadth-first Search)
+     * @param[in]  rootPath : find root path
+     * @param[in]  fileName : file name
+     * @param[out] retVec : used to return the found path
+     * @return     true : success false : fail
+     */
+    bool getFilesInDir(std::string rootPath, std::string fileName, std::vector<std::string> & retVec)
+    {
+    #ifdef _WIN32
+        bool ret = true;
+        std::queue<std::string > dirQueue;
+
+        retVec.clear();
+        ret = isPathExist(rootPath);
+        if(!ret)
+        {
+            return false;
+        }
+        dirQueue.push(rootPath);
+        do
+        {
+            std::string dirPath = dirQueue.front();
+            dirQueue.pop();
+
+            WIN32_FIND_DATAA winFindData = {0};
+            std::string findArg = dirPath + "\\*.*";
+            HANDLE hFind = FindFirstFileA(findArg.c_str(), &winFindData);
+            if(INVALID_HANDLE_VALUE == hFind)
+            {
+                ret = false;
+                break;
+            }
+
+            do
+            {
+                if (winFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                {
+                    if((std::string(".") != winFindData.cFileName) && (std::string("..") != winFindData.cFileName))
+                    {
+                        std::string fullPath = dirPath + "\\" + winFindData.cFileName;
+                        dirQueue.push(fullPath);
+                    }
+                }
+                else
+                {
+                    if(fileName == winFindData.cFileName)
+                    {
+                        std::string fullPath = dirPath + "\\" + winFindData.cFileName;
+                        retVec.push_back(fullPath);
+                    }
+                }
+            }while(FindNextFileA(hFind, &winFindData));
+
+            if(NULL != hFind)
+            {
+                FindClose(hFind);
+                hFind = NULL;
+            }
+
+        }while(dirQueue.size());
+
+        return ret;
+    #else
+        bool ret = true;
+        std::queue<std::string > dirQueue;
+        DIR *dp = NULL;
+
+        retVec.clear();
+        ret = isPathExist(rootPath);
+        if(!ret)
+        {
+            return false;
+        }
+
+        dirQueue.push(rootPath);
+        do
+        {
+            std::string dirPath = dirQueue.front();
+            dirQueue.pop();
+
+            dp = opendir(dirPath.c_str()); 
+            if(NULL == dp)
+            {
+                ret = false;
+                break;
+            }
+
+            while(true)
+            {
+                struct dirent *ep = NULL;
+                struct dirent ent = {0};
+                int retVal = readdir_r(dp, &ent, &ep);
+                if(0 != retVal)
+                {
+                    break;
+                }
+                
+                if(NULL == ep)
+                {
+                    break;
+                }
+
+                if(ep->d_type & DT_DIR)
+                {
+                    if((std::string(".") == ep->d_name) || (std::string("..") == ep->d_name))
+                    {
+                        continue;
+                    }
+                    std::string fullPath = dirPath + "/" + ep->d_name;
+                    dirQueue.push(fullPath);
+                }
+                else
+                {
+                    if(fileName == ep->d_name)
+                    {
+                        std::string fullPath = dirPath + "/" + ep->d_name;
+                        retVec.push_back(fullPath);
+                    }
+                }
+            }
+
+            if(NULL != dp)
+            {
+                closedir(dp);
+                dp = NULL;
+            }
+
+        }while(dirQueue.size());
+
+        return ret;
+    #endif
     }
 private:
     static bool isPathExist(std::string path)
