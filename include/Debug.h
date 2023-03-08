@@ -29,7 +29,6 @@
     #define GPLUGMGR_LOG_WARN(errnum, fmt, ...)  printf("[W] %s:%d [%s] errnum=%d " fmt "\n", __FILE__, __LINE__, __FUNCTION__, errnum, ##__VA_ARGS__)
     #define GPLUGMGR_LOG_INFO(fmt, ...)          printf("[I] %s:%d [%s] " fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
     #define GPLUGMGR_LOG_DEBUG(fmt, ...)         printf("[D] %s:%d [%s] " fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-    #define GPLUG_LOG_TRACE(fmt, ...)         printf("[T] %s:%d [%s] " fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
     #define GPLUG_LOG_FATAL(errnum, fmt, ...) printf("[F] %s:%d [%s] errnum=%d " fmt "\n", __FILE__, __LINE__, __FUNCTION__, errnum, ##__VA_ARGS__)
     #define GPLUG_LOG_ERROR(errnum, fmt, ...) printf("[E] %s:%d [%s] errnum=%d " fmt "\n", __FILE__, __LINE__, __FUNCTION__, errnum, ##__VA_ARGS__)
     #define GPLUG_LOG_WARN(errnum, fmt, ...)  printf("[W] %s:%d [%s] errnum=%d " fmt "\n", __FILE__, __LINE__, __FUNCTION__, errnum, ##__VA_ARGS__)
