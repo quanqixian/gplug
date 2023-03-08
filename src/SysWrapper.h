@@ -6,10 +6,9 @@
 #include <queue>
 #include <vector>
 
-#if (defined(_WIN32) || defined(_WIN64))
-    #include <io.h>
-    #include <direct.h>
+#ifdef _WIN32
     #include <windows.h>
+    #include "dirent.h" /* This header file is in the current directory */
 #else
     #include <unistd.h>
     #include <dlfcn.h>
@@ -33,61 +32,6 @@ public:
      */
     static bool getFilesInDir(std::string rootPath, std::string fileName, std::vector<std::string> & retVec)
     {
-    #ifdef _WIN32
-        bool ret = true;
-        std::queue<std::string > dirQueue;
-
-        retVec.clear();
-        ret = isExist(rootPath);
-        if(!ret)
-        {
-            return false;
-        }
-        dirQueue.push(rootPath);
-        do
-        {
-            std::string dirPath = dirQueue.front();
-            dirQueue.pop();
-
-            WIN32_FIND_DATAA winFindData = {0};
-            std::string findArg = dirPath + "\\*.*";
-            HANDLE hFind = FindFirstFileA(findArg.c_str(), &winFindData);
-            if(INVALID_HANDLE_VALUE == hFind)
-            {
-                ret = false;
-                break;
-            }
-
-            do
-            {
-                if (winFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                {
-                    if((std::string(".") != winFindData.cFileName) && (std::string("..") != winFindData.cFileName))
-                    {
-                        std::string fullPath = dirPath + "\\" + winFindData.cFileName;
-                        dirQueue.push(fullPath);
-                    }
-                }
-                else
-                {
-                    if(fileName == winFindData.cFileName)
-                    {
-                        std::string fullPath = dirPath + "\\" + winFindData.cFileName;
-                        retVec.push_back(fullPath);
-                    }
-                }
-            }while(FindNextFileA(hFind, &winFindData));
-
-            if(NULL != hFind)
-            {
-                FindClose(hFind);
-                hFind = NULL;
-            }
-
-        }while(dirQueue.size());
-
-        return ret;
-    #else
         bool ret = true;
         std::queue<std::string > dirQueue;
         DIR *dp = NULL;
@@ -155,7 +99,6 @@ public:
         }while(dirQueue.size());
 
         return ret;
-    #endif
     }
 
     static bool isExist(std::string path)
