@@ -25,48 +25,6 @@ class PathWrapper
 {
 public:
     /**
-     * @brief      stitching path
-     * @param[in]  basePath : base path
-     * @param[out] retPath : Full path
-     * @return     true : success false : fail
-     */
-    static bool splicePath(const std::string & basePath, std::string & retPath)
-    {
-        bool ret = true;
-        std::string workDir;
-        std::string fullPath;
-
-        /* Get the current working path */
-        ret = getCurrentWorkDir(workDir);
-        if(!ret)
-        {
-            GPLUGMGR_LOG_ERROR(-1, "file to getCurrentWorkDir");
-            return ret;
-        }
-
-        /* splice full path */
-    #if (defined(_WIN32) || defined(_WIN64))
-        fullPath = workDir + std::string("\\") + basePath;
-    #else
-        fullPath = workDir + std::string("/") + basePath;
-    #endif
-
-        /* set return value */
-        retPath = fullPath;
-
-        /* Check if file or path exists */
-        ret = isPathExist(fullPath);
-        if(!ret)
-        {
-            GPLUGMGR_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
-            return ret;
-        }
-
-        //GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
-
-        return ret;
-    }
-    /**
      * @brief      Get all file paths with the same name as the specified file name in the specified directory(Breadth-first Search)
      * @param[in]  rootPath : find root path
      * @param[in]  fileName : file name
@@ -80,7 +38,7 @@ public:
         std::queue<std::string > dirQueue;
 
         retVec.clear();
-        ret = isPathExist(rootPath);
+        ret = isExist(rootPath);
         if(!ret)
         {
             return false;
@@ -135,7 +93,7 @@ public:
         DIR *dp = NULL;
 
         retVec.clear();
-        ret = isPathExist(rootPath);
+        ret = isExist(rootPath);
         if(!ret)
         {
             return false;
@@ -199,8 +157,8 @@ public:
         return ret;
     #endif
     }
-private:
-    static bool isPathExist(std::string path)
+
+    static bool isExist(std::string path)
     {
         bool ret = true;
 

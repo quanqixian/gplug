@@ -41,6 +41,48 @@ std::map<GPluginHandle, Plugin*> m_instanceMap; /*  */
 SysWrapper::Mutex m_mutex;
 volatile bool m_isInited = false;               /* initialized flag */
 
+/**
+ * @brief      stitching path
+ * @param[in]  basePath : base path
+ * @param[out] retPath : Full path
+ * @return     true : success false : fail
+ */
+static bool splicePath(const std::string & basePath, std::string & retPath)
+{
+    bool ret = true;
+    std::string workDir;
+    std::string fullPath;
+
+    /* Get the current working path */
+    ret = PathWrapper::getCurrentWorkDir(workDir);
+    if(!ret)
+    {
+        GPLUGMGR_LOG_ERROR(-1, "file to getCurrentWorkDir");
+        return ret;
+    }
+
+    /* splice full path */
+#if (defined(_WIN32) || defined(_WIN64))
+    fullPath = workDir + std::string("\\") + basePath;
+#else
+    fullPath = workDir + std::string("/") + basePath;
+#endif
+
+    /* set return value */
+    retPath = fullPath;
+
+    /* Check if file or path exists */
+    ret = PathWrapper::isExist(fullPath);
+    if(!ret)
+    {
+        GPLUGMGR_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
+        return ret;
+    }
+
+    //GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
+    return ret;
+}
+
 static int checkAndprintPluginInfo(const Plugin & p)
 {
     bool ret = true;
@@ -163,7 +205,7 @@ static int loadConfigFile(const std::string & fullPath)
 static int loadConfigFiles()
 {
     std::string currentPath;
-    bool boolRet = PathWrapper::splicePath(".", currentPath);
+    bool boolRet = splicePath(".", currentPath);
     if(!boolRet)
     {
         GPLUGMGR_LOG_ERROR(-1, "Fail to get current path.");
