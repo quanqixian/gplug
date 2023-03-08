@@ -10,6 +10,13 @@
 #include <string.h>
 #include <algorithm>
 
+#ifdef _WIN32
+    #include "dirent.h" /* This header file is in the current directory */
+#else
+    #include <sys/types.h>
+    #include <dirent.h>
+#endif
+
 /* This is not a good way to deal with different symbols on different platforms */
 #ifdef _WIN32
     #ifdef _WIN64
@@ -81,6 +88,83 @@ static bool splicePath(const std::string & basePath, std::string & retPath)
 
     //GPLUGMGR_LOG_INFO("file or dir is exist, fullPath=%s", fullPath.c_str());
     return ret;
+}
+/**
+ * @brief      Get all file paths with the same name as the specified file name in the specified directory(Breadth-first Search)
+ * @param[in]  rootPath : find root path
+ * @param[in]  fileName : file name
+ * @param[out] retVec : used to return the found path
+ * @return     true : success false : fail
+ */
+static bool getFilesInDir(std::string rootPath, std::string fileName, std::vector<std::string> & retVec)
+{
+	bool ret = true;
+	std::queue<std::string > dirQueue;
+	DIR *dp = NULL;
+
+	retVec.clear();
+	ret = FileSys::isExist(rootPath);
+	if(!ret)
+	{
+		return false;
+	}
+
+	dirQueue.push(rootPath);
+	do
+	{
+		std::string dirPath = dirQueue.front();
+		dirQueue.pop();
+
+		dp = opendir(dirPath.c_str());
+		if(NULL == dp)
+		{
+			ret = false;
+			break;
+		}
+
+		while(true)
+		{
+			struct dirent *ep = NULL;
+			struct dirent ent = {0};
+			int retVal = readdir_r(dp, &ent, &ep);
+			if(0 != retVal)
+			{
+				break;
+			}
+
+			if(NULL == ep)
+			{
+				break;
+			}
+
+			if(ep->d_type & DT_DIR)
+			{
+				if((std::string(".") == ep->d_name) || (std::string("..") == ep->d_name))
+				{
+					continue;
+				}
+				std::string fullPath = dirPath + "/" + ep->d_name;
+				dirQueue.push(fullPath);
+			}
+			else
+			{
+				if(fileName == ep->d_name)
+				{
+					std::string fullPath = dirPath + "/" + ep->d_name;
+					retVec.push_back(fullPath);
+				}
+			}
+		}
+
+		if(NULL != dp)
+		{
+			closedir(dp);
+			dp = NULL;
+		}
+
+	}while(dirQueue.size());
+
+	return ret;
 }
 
 static int checkAndprintPluginInfo(const Plugin & p)
@@ -213,7 +297,7 @@ static int loadConfigFiles()
     }
 
     std::vector<std::string> retVec;
-    boolRet = FileSys::getFilesInDir(currentPath, "gplugin.xml", retVec);
+    boolRet = getFilesInDir(currentPath, "gplugin.xml", retVec);
     if(!boolRet)
     {
         GPLUGMGR_LOG_ERROR(-1, "Fail to getFilesInDir.");
