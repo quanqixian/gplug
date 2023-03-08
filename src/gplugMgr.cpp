@@ -54,7 +54,7 @@ static bool splicePath(const std::string & basePath, std::string & retPath)
     std::string fullPath;
 
     /* Get the current working path */
-    ret = PathWrapper::getCurrentWorkDir(workDir);
+    ret = FileSys::getCurrentWorkDir(workDir);
     if(!ret)
     {
         GPLUGMGR_LOG_ERROR(-1, "file to getCurrentWorkDir");
@@ -72,7 +72,7 @@ static bool splicePath(const std::string & basePath, std::string & retPath)
     retPath = fullPath;
 
     /* Check if file or path exists */
-    ret = PathWrapper::isExist(fullPath);
+    ret = FileSys::isExist(fullPath);
     if(!ret)
     {
         GPLUGMGR_LOG_WARN(0, "file or dir is not exist, fullPath=%s", fullPath.c_str());
@@ -213,7 +213,7 @@ static int loadConfigFiles()
     }
 
     std::vector<std::string> retVec;
-    boolRet = PathWrapper::getFilesInDir(currentPath, "gplugin.xml", retVec);
+    boolRet = FileSys::getFilesInDir(currentPath, "gplugin.xml", retVec);
     if(!boolRet)
     {
         GPLUGMGR_LOG_ERROR(-1, "Fail to getFilesInDir.");

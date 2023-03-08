@@ -21,7 +21,7 @@
 namespace SysWrapper
 {
 
-class PathWrapper
+class FileSys
 {
 public:
     /**
