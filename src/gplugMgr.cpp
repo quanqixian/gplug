@@ -69,7 +69,7 @@ static bool splicePath(const std::string & basePath, std::string & retPath)
     }
 
     /* splice full path */
-#if (defined(_WIN32) || defined(_WIN64))
+#ifdef _WIN32
     fullPath = workDir + std::string("\\") + basePath;
 #else
     fullPath = workDir + std::string("/") + basePath;
@@ -98,73 +98,81 @@ static bool splicePath(const std::string & basePath, std::string & retPath)
  */
 static bool getFilesInDir(std::string rootPath, std::string fileName, std::vector<std::string> & retVec)
 {
-	bool ret = true;
-	std::queue<std::string > dirQueue;
-	DIR *dp = NULL;
+    bool ret = true;
+    std::queue<std::string > dirQueue;
+    DIR *dp = NULL;
 
-	retVec.clear();
-	ret = FileSys::isExist(rootPath);
-	if(!ret)
-	{
-		return false;
-	}
+    retVec.clear();
+    ret = FileSys::isExist(rootPath);
+    if(!ret)
+    {
+        return false;
+    }
 
-	dirQueue.push(rootPath);
-	do
-	{
-		std::string dirPath = dirQueue.front();
-		dirQueue.pop();
+    dirQueue.push(rootPath);
+    do
+    {
+        std::string dirPath = dirQueue.front();
+        dirQueue.pop();
 
-		dp = opendir(dirPath.c_str());
-		if(NULL == dp)
-		{
-			ret = false;
-			break;
-		}
+        dp = opendir(dirPath.c_str());
+        if(NULL == dp)
+        {
+            ret = false;
+            break;
+        }
 
-		while(true)
-		{
-			struct dirent *ep = NULL;
-			struct dirent ent = {0};
-			int retVal = readdir_r(dp, &ent, &ep);
-			if(0 != retVal)
-			{
-				break;
-			}
+        while(true)
+        {
+            struct dirent *ep = NULL;
+            struct dirent ent = {0};
+            int retVal = readdir_r(dp, &ent, &ep);
+            if(0 != retVal)
+            {
+                break;
+            }
 
-			if(NULL == ep)
-			{
-				break;
-			}
+            if(NULL == ep)
+            {
+                break;
+            }
 
-			if(ep->d_type & DT_DIR)
-			{
-				if((std::string(".") == ep->d_name) || (std::string("..") == ep->d_name))
-				{
-					continue;
-				}
-				std::string fullPath = dirPath + "/" + ep->d_name;
-				dirQueue.push(fullPath);
-			}
-			else
-			{
-				if(fileName == ep->d_name)
-				{
-					std::string fullPath = dirPath + "/" + ep->d_name;
-					retVec.push_back(fullPath);
-				}
-			}
-		}
+            if(ep->d_type & DT_DIR)
+            {
+                if((std::string(".") == ep->d_name) || (std::string("..") == ep->d_name))
+                {
+                    continue;
+                }
+#ifdef _WIN32
+                std::string fullPath = dirPath + "\\" + ep->d_name;
+#else
+                std::string fullPath = dirPath + "/" + ep->d_name;
+#endif
+                dirQueue.push(fullPath);
+            }
+            else
+            {
+                if(fileName == ep->d_name)
+                {
+#ifdef _WIN32
+                    std::string fullPath = dirPath + "\\" + ep->d_name;
+#else
+                    std::string fullPath = dirPath + "/" + ep->d_name;
+#endif
+                    retVec.push_back(fullPath);
+                }
+            }
+        }
 
-		if(NULL != dp)
-		{
-			closedir(dp);
-			dp = NULL;
-		}
+        if(NULL != dp)
+        {
+            closedir(dp);
+            dp = NULL;
+        }
 
-	}while(dirQueue.size());
+    }while(dirQueue.size());
 
-	return ret;
+    return ret;
 }
 
 static int checkAndprintPluginInfo(const Plugin & p)
