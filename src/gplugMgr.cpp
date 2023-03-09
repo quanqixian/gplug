@@ -623,8 +623,11 @@ int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* att
     {
         return GPLUGMGR_ERR;
     }
-
+#ifdef _WIN32
+    strncpy_s(attributeValue, *bufLen - 1, value.c_str(), value.size());
+#else
     strncpy(attributeValue, value.c_str(), value.size());
+#endif
     attributeValue[value.size()] = 0;
     *bufLen = value.size();
 

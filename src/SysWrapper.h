@@ -8,6 +8,8 @@
 
 #ifdef _WIN32
     #include <windows.h>
+    #include  <io.h>
+    #include <direct.h>
 #else
     #include <unistd.h>
     #include <dlfcn.h>

@@ -6,8 +6,8 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
-#ifndef DIRENT_H
-#define DIRENT_H
+#ifndef MICROSOFT_DIRENT_H
+#define MICROSOFT_DIRENT_H
 
 /* Hide warnings about unreferenced local functions */
 #if defined(__clang__)
