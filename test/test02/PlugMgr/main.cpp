@@ -270,6 +270,13 @@ TEST(GPlugMgr, GPlugMgr_QueryConfigAttribute)
         len = 1; /* buf size is too small */
         ret = GPlugMgr_QueryConfigAttribute("CatPlugin", "file", buf, &len);
         EXPECT_NE(ret, 0);
+
+        /* Other attributes, optional */
+        memset(buf, 0, sizeof(buf));
+        len= sizeof(buf);
+        ret = GPlugMgr_QueryConfigAttribute("DogPlugin", "timeout", buf, &len);
+        EXPECT_EQ(ret, 0);
+        EXPECT_EQ(std::string("5"), buf);
     }
 
 
