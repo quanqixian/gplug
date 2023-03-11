@@ -41,6 +41,24 @@ struct Plugin
     Plugin() : dlHandler(NULL), pluginInterface(NULL), delayload(false)
     {
     }
+public:
+    void setAttribute(const std::string & name, const std::string & value)
+    {
+        m_attributeMap[name] = value;
+    }
+    bool getAttribute(const std::string & name, std::string & value)
+    {
+        bool ret = true;
+        std::map<std::string, std::string>::const_iterator iter = m_attributeMap.find(name);
+        if(iter == m_attributeMap.end())
+        {
+            return false;
+        }
+        value = iter->second;
+        return ret;
+    }
+private:
+    std::map<std::string, std::string> m_attributeMap;
 };
 
 std::map<std::string, Plugin> m_pluginMap;      /* first: file key, second: plugin info */
@@ -253,6 +271,11 @@ static int loadConfigFile(const std::string & fullPath)
     {
         /* read configuration parameters */
         Plugin p;
+        for (const tinyxml2::XMLAttribute* attr = plugin->FirstAttribute(); NULL != attr; attr = attr->Next())
+        {
+            p.setAttribute(attr->Name(), attr->Value());
+        }
+
         p.fkey = plugin->Attribute("fkey");
         plugin->QueryBoolAttribute("delayload", &p.delayload);
     
@@ -427,7 +450,7 @@ int GPLUGMGR_API GPlugMgr_Deinit()
     }
 
     /* destroy all instances */
-    for(std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.begin(); iter != m_instanceMap.end(); ++ iter)
+    for(std::map<GPluginHandle, Plugin*>::iterator iter = m_instanceMap.begin(); iter != m_instanceMap.end(); ++iter)
     {
         Plugin * p = iter->second;
         p->pluginInterface()->DestroyInstance(iter->first);
@@ -604,19 +627,14 @@ int GPLUGMGR_API GPlugMgr_QueryConfigAttribute(const char* fkey, const char* att
     }
 
     Plugin & p = iter->second;
-
     std::string value;
-    if(std::string("file") == attributeName)
+
     {
-        value = p.file;
-    }
-    else if(std::string("delayload") == attributeName)
-    {
-        value = p.delayload ? "true" : "false";
-    }
-    else
-    {
-        return GPLUGMGR_ERR;
+        ret = p.getAttribute(attributeName, value);
+        if(!ret)
+        {
+            return GPLUGMGR_ERR;
+        }
     }
 
     if(*bufLen < (value.size() + 1))
