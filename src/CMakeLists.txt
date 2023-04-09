@@ -23,6 +23,7 @@ find_package(Threads REQUIRED)
 if(GPLUG_BUILD_SHARED_LIBS)
 	add_library(gplug SHARED ${GPLUG_SOURCES})
 	set_target_properties(gplug PROPERTIES OUTPUT_NAME gplug)
+	set_target_properties(gplug PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 	target_include_directories(gplug PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include/)
 	if (UNIX)
