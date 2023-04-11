@@ -18,7 +18,7 @@ target_include_directories(PluginMgr01 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../include
 	)
 target_link_libraries(PluginMgr01 gplug)
-set_target_properties(PluginMgr01 PROPERTIES INSTALL_RPATH "$ORIGIN;../../lib")
+set_target_properties(PluginMgr01 PROPERTIES INSTALL_RPATH "$ORIGIN;../../${CMAKE_INSTALL_LIBDIR}")
 
 install(TARGETS PluginMgr01 DESTINATION bin/example01)
 
