@@ -282,16 +282,24 @@ static int loadConfigFile(const std::string & fullPath)
         std::string file = plugin->Attribute("file");
         p.file = file;
 
-        std::string dirName = fullPath.substr(0, fullPath.size() - strlen("gplugin.xml") - 1);
-    #if (defined(_WIN32) || defined(_WIN64))
-        std::replace(file.begin(), file.end(), '/', '\\');
-        std::string pluginPath = dirName +  "\\" + file;
-    #else
-        std::replace(file.begin(), file.end(), '\\', '/');
-        std::string pluginPath = dirName +  "/" + file;
-    #endif
-
-        p.filePath = pluginPath;
+        /* Determine whether it is an absolute path */
+        if((p.file.size() > 0)   &&
+           (p.file.at(0) != '.'))
+        {
+            p.filePath = p.file; /* absolute path */
+        }
+        else
+        {
+            std::string dirName = fullPath.substr(0, fullPath.size() - strlen("gplugin.xml") - 1);
+        #if (defined(_WIN32) || defined(_WIN64))
+            std::replace(file.begin(), file.end(), '/', '\\');
+            std::string pluginPath = dirName +  "\\" + file;
+        #else
+            std::replace(file.begin(), file.end(), '\\', '/');
+            std::string pluginPath = dirName +  "/" + file;
+        #endif
+            p.filePath = pluginPath;
+        }
 
         /* Check for duplicates in fkey */
         if(m_pluginMap.find(p.fkey) != m_pluginMap.end())
